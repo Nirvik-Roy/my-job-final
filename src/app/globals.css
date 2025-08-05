@@ -1,0 +1,31 @@
+@import "tailwindcss";
+*{
+  box-sizing: border-box;
+}
+h1,h2,h3,h4,h5,h6{
+  margin-top: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  margin-right: 0px;
+}
+.uni_container{
+  width: 100%;
+  max-width: 1140px;
+  min-width: 1140px;
+  margin-inline: auto;
+}
+.slick-prev:before, .slick-next:before{
+  color: #0667d0 !important;
+}
+.slick-dots li.slick-active button:before{
+    color: #0667d0 !important;
+}
+
+@media(max-width:1250px){
+  .uni_container{
+  width: 100%;
+  max-width: 75%;
+  min-width: 75%;
+  margin-inline: auto;
+}
+}
