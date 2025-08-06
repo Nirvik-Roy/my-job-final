@@ -2,6 +2,7 @@ import React from 'react'
 import ReactSlider from './ReactSlider'
 
 const ClientTesimonial = () => {
+     console.log(process.env.BASE_URL)
   return (
     <>
       <div className='bg-[#f1f2f4] w-[100%] pt-[70px] pb-[70px]'>

@@ -1,13 +1,17 @@
+'use client'
 import React from 'react'
 import footerlogo from '../../Assets/Logo (1).png'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 const Footer = () => {
+  const NotFooterRoutes = ['/login','/register','/otp','/reset-password']
+  const location = usePathname()
   return (
     <>
-      <div className='footer_wrapper bg-[#000] pt-[70px] pb-[70px]'>
+      <div style={NotFooterRoutes.includes(location) ? { display: 'none' } : {}} className='footer_wrapper bg-[#000] pt-[70px] pb-[70px]'>
         <div className='uni_container flex justify-between'>
           <div className='w-[25%]'>
-            <Image src={footerlogo} className='w-[100px]' />
+            <Image src={footerlogo} className='w-[100px]' alt='footer_logo' />
             <p className='text-gray-400 font-[400] text-[13px] mt-[20px]'>Call Now:<span className='text-[#fff] font-[500]'> (319) 555-0115</span></p>
             <p className='text-gray-400 font-[400] text-[13px] mt-[20px]'>6391 Elgin St. Celina, Delaware 10299, New York, United States of America</p>
           </div>
@@ -42,7 +46,7 @@ const Footer = () => {
           </div>
         </div>
       </div>
-      <div className='bg-[#000] pt-[10px] pb-[10px] border border-t-gray-400'>
+      <div style={NotFooterRoutes.includes(location) ? { display: 'none' } : {}} className='bg-[#000] pt-[10px] pb-[10px] border border-t-gray-400'>
         <div className='uni_container flex justify-between items-center'>
           <p className='text-gray-400 font-[400] text-[12px] cursor-pointer'>@ 2024 MyJob - Job Portal. All rights Rserved</p>
           <div className='flex gap-4 justify-start items-center text-[15px]'>

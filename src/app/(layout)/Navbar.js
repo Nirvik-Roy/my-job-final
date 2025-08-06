@@ -1,13 +1,25 @@
+'use client'
 import Link from 'next/link'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import logo from '../../Assets/Logo.png'
 import Image from 'next/image'
 import flag from '../../Assets/image 1.png'
 import search from '../../Assets/fi_search.png'
+import { usePathname } from 'next/navigation'
 const Navbar = () => {
+    const NotNavbarRoutes = ['/login','/register','/otp','/reset-password']
+    const location = usePathname()
+    const [token,settoken]=useState('')
+
+    useEffect(()=>{
+        const token2 = localStorage.getItem('job_token')
+        if(token2){
+            settoken(token2)
+        }
+    },[])
     return (
         <>
-            <div className='bg-gray-200 pt-[8px] pb-[8px]'>
+            <div style={NotNavbarRoutes.includes(location)?{display:'none'}:{}} className='bg-gray-200 pt-[8px] pb-[8px]'>
                 <div className='uni_container flex justify-between align-items-center'>
                     <div className='flex justify-start align-items-center gap-5 text-[13px] font-normal text-gray-500'>
                         <Link href={'/'}>Home</Link>
@@ -29,7 +41,7 @@ const Navbar = () => {
             </div>
 
 
-            <div className='bg-white-500 pt-[15px] pb-[15px] border-b-1 border-gray-300 '>
+            <div style={NotNavbarRoutes.includes(location)?{display:'none'}:{}} className='bg-white-500 pt-[15px] pb-[15px] border-b-1 border-gray-300 '>
                 <div className='uni_container flex justify-between items-center'>
                     <div className='flex justify-start items-center gap-10 w-[65%]'>
                         <Image className='w-[100px]' src={logo} alt='company_logo ' />
@@ -54,7 +66,8 @@ const Navbar = () => {
 
 
                     <div className='flex justify-start items-center gap-4'>
-                        <button className='h-[45px] border border-blue-300 text-blue-600 rounded rounded-[5px] ps-[40px] pr-[40px] cursor-pointer font-[600]'>Sign In</button>
+                      {!token &&  <button className='h-[45px] border border-blue-300 text-blue-600 rounded rounded-[5px] ps-[40px] pr-[40px] cursor-pointer font-[600]'>Sign In</button>}
+                      { token &&  <i className="fa-solid fa-circle-user text-[20px] text-[#0a65cd]"></i>}
                         <button className='h-[45px] border border-blue-300 bg-[#0764c2] text-[#fff] font-[600] rounded rounded-[5px] ps-[40px] pr-[40px] cursor-pointer'>Post A Job</button>
                     </div>
                 </div>
