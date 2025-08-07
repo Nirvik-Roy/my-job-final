@@ -6,20 +6,26 @@ import Image from 'next/image'
 import flag from '../../Assets/image 1.png'
 import search from '../../Assets/fi_search.png'
 import { usePathname } from 'next/navigation'
+import { useDispatch, useSelector } from 'react-redux'
+import { verifyToken,logout } from '../Store/Slices/AuthSlice'
+import { useRouter } from 'next/navigation'
 const Navbar = () => {
-    const NotNavbarRoutes = ['/login','/register','/otp','/reset-password']
-    const location = usePathname()
-    const [token,settoken]=useState('')
+    const NotNavbarRoutes = ['/login', '/register', '/otp', '/reset-password']
+    const location = usePathname();
+    const router = useRouter()
+    const { isLoading, isLogin } = useSelector(state => state.auth)
+    const dispatch = useDispatch()
+    useEffect(() => {
+        dispatch(verifyToken())
+    }, [isLogin])
 
-    useEffect(()=>{
-        const token2 = localStorage.getItem('job_token')
-        if(token2){
-            settoken(token2)
-        }
-    },[])
+    const handleLogout = () =>{
+        dispatch(logout())
+        router.push('/')
+    }
     return (
         <>
-            <div style={NotNavbarRoutes.includes(location)?{display:'none'}:{}} className='bg-gray-200 pt-[8px] pb-[8px]'>
+            <div style={NotNavbarRoutes.includes(location) ? { display: 'none' } : {}} className='bg-gray-200 pt-[8px] pb-[8px]'>
                 <div className='uni_container flex justify-between align-items-center'>
                     <div className='flex justify-start align-items-center gap-5 text-[13px] font-normal text-gray-500'>
                         <Link href={'/'}>Home</Link>
@@ -41,7 +47,7 @@ const Navbar = () => {
             </div>
 
 
-            <div style={NotNavbarRoutes.includes(location)?{display:'none'}:{}} className='bg-white-500 pt-[15px] pb-[15px] border-b-1 border-gray-300 '>
+            <div style={NotNavbarRoutes.includes(location) ? { display: 'none' } : {}} className='bg-white-500 pt-[15px] pb-[15px] border-b-1 border-gray-300 '>
                 <div className='uni_container flex justify-between items-center'>
                     <div className='flex justify-start items-center gap-10 w-[65%]'>
                         <Image className='w-[100px]' src={logo} alt='company_logo ' />
@@ -66,8 +72,10 @@ const Navbar = () => {
 
 
                     <div className='flex justify-start items-center gap-4'>
-                      {!token &&  <button className='h-[45px] border border-blue-300 text-blue-600 rounded rounded-[5px] ps-[40px] pr-[40px] cursor-pointer font-[600]'>Sign In</button>}
-                      { token &&  <i className="fa-solid fa-circle-user text-[20px] text-[#0a65cd]"></i>}
+                        {!isLogin && <button className='h-[45px] border border-blue-300 text-blue-600 rounded rounded-[5px] ps-[40px] pr-[40px] cursor-pointer font-[600]' onClick={(()=>{
+                            router.push('/login')
+                        })}>Sign In</button>}
+                        {isLogin &&<button className='h-[45px] border border-blue-300 text-blue-600 rounded rounded-[5px] ps-[40px] pr-[40px] cursor-pointer font-[600]' onClick={(()=>{handleLogout()})}>Sign Out</button>}
                         <button className='h-[45px] border border-blue-300 bg-[#0764c2] text-[#fff] font-[600] rounded rounded-[5px] ps-[40px] pr-[40px] cursor-pointer'>Post A Job</button>
                     </div>
                 </div>

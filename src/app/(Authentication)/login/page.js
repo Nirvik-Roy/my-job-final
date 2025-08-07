@@ -1,14 +1,18 @@
 'use client'
 import Link from 'next/link'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
+import { Auth, verifyToken } from '../../Store/Slices/AuthSlice'
+import { useDispatch, useSelector } from 'react-redux'
 const page = () => {
+    const dispatch = useDispatch()
+    const router = useRouter()
+    const { isLogin } = useSelector(state => state.auth)
     const [formData, setFormData] = useState({
         email: '',
         password: '',
     })
-    const router = useRouter()
 
     //Handle Input Data
     const HandleChange = (e) => {
@@ -19,23 +23,19 @@ const page = () => {
     }
 
     //Sending data to Login API
-    const HandleSubmit = async (e) => {
+    const HandleSubmit = (e) => {
         e.preventDefault()
         if (formData.email != '' && formData.password != '') {
-            try {
-                const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}user/login`,formData);
-                if(res.data){
-                   localStorage.setItem('job_token',res.data?.payload?.accessToken)
-                   localStorage.setItem('user_type',res.data.payload.data.typeOfUser)
-                }
-                     router.push('/')
-            } catch(err) {
-                 console.log(err.message||'Login Failed')
-            }
+            dispatch(Auth({ formData: formData }))
         }
-
     }
-
+    useEffect(() => {
+        if (isLogin) {
+            setTimeout(() => {
+                router.push('/')
+            }, 2000)
+        }
+    }, [isLogin])
     return (
         <>
             <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
