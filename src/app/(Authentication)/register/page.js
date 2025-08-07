@@ -36,10 +36,10 @@ const page = () => {
                     router.push('/login')
                 }
             } catch (err) {
-                toast.error( err?.response?.data?.message || err.message)
+                toast.error(err?.response?.data?.message || err.message)
             }
 
-        }else {
+        } else {
             toast.error('Plz Enter All fields')
         }
     }
