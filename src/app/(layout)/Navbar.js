@@ -7,7 +7,7 @@ import flag from '../../Assets/image 1.png'
 import search from '../../Assets/fi_search.png'
 import { usePathname } from 'next/navigation'
 import { useDispatch, useSelector } from 'react-redux'
-import { verifyToken,logout } from '../Store/Slices/AuthSlice'
+import { verifyToken, logout } from '../Store/Slices/AuthSlice'
 import { useRouter } from 'next/navigation'
 const Navbar = () => {
     const NotNavbarRoutes = ['/login', '/register', '/otp', '/reset-password']
@@ -19,7 +19,7 @@ const Navbar = () => {
         dispatch(verifyToken())
     }, [isLogin])
 
-    const handleLogout = () =>{
+    const handleLogout = () => {
         dispatch(logout())
         router.push('/')
     }
@@ -29,9 +29,8 @@ const Navbar = () => {
                 <div className='uni_container flex justify-between align-items-center'>
                     <div className='flex justify-start align-items-center gap-5 text-[13px] font-normal text-gray-500'>
                         <Link href={'/'}>Home</Link>
-                        <Link href={''}>Find Job</Link>
-                        <Link href={''}>Employers</Link>
-                        <Link href={''}>Candidates</Link>
+                        <Link href={'/find-job'}>Find Job</Link>
+                        <Link href={''}>Dashboard</Link>
                         <Link href={''}>Pricing Plans</Link>
                         <Link href={''}>Customer Supports</Link>
                     </div>
@@ -72,10 +71,10 @@ const Navbar = () => {
 
 
                     <div className='flex justify-start items-center gap-4'>
-                        {!isLogin && <button className='h-[45px] border border-blue-300 text-blue-600 rounded rounded-[5px] ps-[40px] pr-[40px] cursor-pointer font-[600]' onClick={(()=>{
+                        {!isLogin && <button className='h-[45px] border border-blue-300 text-blue-600 rounded rounded-[5px] ps-[40px] pr-[40px] cursor-pointer font-[600]' onClick={(() => {
                             router.push('/login')
                         })}>Sign In</button>}
-                        {isLogin &&<button className='h-[45px] border border-blue-300 text-blue-600 rounded rounded-[5px] ps-[40px] pr-[40px] cursor-pointer font-[600]' onClick={(()=>{handleLogout()})}>Sign Out</button>}
+                        {isLogin && <button className='h-[45px] border border-blue-300 text-blue-600 rounded rounded-[5px] ps-[40px] pr-[40px] cursor-pointer font-[600]' onClick={(() => { handleLogout() })}>Sign Out</button>}
                         <button className='h-[45px] border border-blue-300 bg-[#0764c2] text-[#fff] font-[600] rounded rounded-[5px] ps-[40px] pr-[40px] cursor-pointer'>Post A Job</button>
                     </div>
                 </div>
