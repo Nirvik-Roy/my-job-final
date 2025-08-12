@@ -10,11 +10,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import { verifyToken, logout } from '../Store/Slices/AuthSlice'
 import { useRouter } from 'next/navigation'
 import { allJob } from '../Store/Slices/AllJobSlice'
+
 const Navbar = () => {
     const NotNavbarRoutes = ['/login', '/register', '/otp', '/reset-password']
     const location = usePathname();
     const router = useRouter()
-    const { isLoading, isLogin } = useSelector(state => state.auth)
+    const { isLogin } = useSelector(state => state.auth)
     const dispatch = useDispatch()
     useEffect(() => {
         dispatch(verifyToken())
@@ -23,6 +24,7 @@ const Navbar = () => {
     useEffect(() => {
         dispatch(allJob())
     }, [])
+
     const handleLogout = () => {
         dispatch(logout())
         router.push('/')

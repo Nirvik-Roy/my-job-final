@@ -7,9 +7,8 @@ export const allJob = createAsyncThunk('allJob', async () => {
     try {
         const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}job/allJobs?limit=30`);
         return res.data
-
     } catch (err) {
-        toast.error('Error' || err)
+        toast.error( err.response?.data?.message)
     }
 })
 
