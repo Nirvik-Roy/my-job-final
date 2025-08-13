@@ -9,7 +9,7 @@ import LoaderNew from '../LoaderNew'
 const FeaturedJob = ({ jobList }) => {
     const router = useRouter();
     const [allJobs, setallJobs] = useState([])
-    const { jobs,isloading } = useSelector(state => state.AllJob)
+    const { jobs, isloading, isError } = useSelector(state => state.AllJob)
     useEffect(() => {
         setallJobs(jobs)
         return (() => {
@@ -28,7 +28,8 @@ const FeaturedJob = ({ jobList }) => {
                         </div>
                     </div>
                     <div className='flex flex-col gap-y-8 mt-[40px]'>
-                       {isloading && <LoaderNew/>}
+                        {isloading && <LoaderNew />}
+                        {isError && <p>No Jobs Found...</p>}
                         {allJobs?.map((e, i) => {
                             if (i < 10) {
                                 return (

@@ -21,6 +21,7 @@ const PopularVaccines = () => {
                     <h2 className='text-[30px] font-[500]'>Most Popular Vacancies</h2>
                     <div className='flex  mt-[50px] flex-wrap gap-[25px] items-center'>
                         {isloading && <LoaderNew />}
+                        {isError && <p>No Jobs Found...</p>}
                         {allJobs?.map((e, i) => {
                             if (i < 20) {
                                 return (

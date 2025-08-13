@@ -10,19 +10,28 @@ import { useDispatch, useSelector } from 'react-redux'
 import { verifyToken, logout } from '../Store/Slices/AuthSlice'
 import { useRouter } from 'next/navigation'
 import { allJob } from '../Store/Slices/AllJobSlice'
+import Cookies from 'js-cookie'
 
 const Navbar = () => {
     const NotNavbarRoutes = ['/login', '/register', '/otp', '/reset-password']
     const location = usePathname();
     const router = useRouter()
-    const { isLogin } = useSelector(state => state.auth)
+    const { isLogin } = useSelector(state => state.auth);
+    const [userType, setuserType] = useState('')
     const dispatch = useDispatch()
     useEffect(() => {
         dispatch(verifyToken())
-    }, [isLogin])
+        const user = Cookies.get('user_type')
+        if (user) {
+            setuserType(user)
+        }else{
+            setuserType('')
+        }
+     }, [isLogin])
 
     useEffect(() => {
         dispatch(allJob())
+
     }, [])
 
     const handleLogout = () => {
@@ -81,7 +90,7 @@ const Navbar = () => {
                             router.push('/login')
                         })}>Sign In</button>}
                         {isLogin && <button className='h-[45px] border border-blue-300 text-blue-600 rounded rounded-[5px] ps-[40px] pr-[40px] cursor-pointer font-[600]' onClick={(() => { handleLogout() })}>Sign Out</button>}
-                        <button className='h-[45px] border border-blue-300 bg-[#0764c2] text-[#fff] font-[600] rounded rounded-[5px] ps-[40px] pr-[40px] cursor-pointer'>Post A Job</button>
+                        {userType == 'Employer' && <button className='h-[45px] border border-blue-300 bg-[#0764c2] text-[#fff] font-[600] rounded rounded-[5px] ps-[40px] pr-[40px] cursor-pointer'>Post A Job</button>}
                     </div>
                 </div>
             </div>

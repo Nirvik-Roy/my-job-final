@@ -9,6 +9,7 @@ export const allJob = createAsyncThunk('allJob', async () => {
         return res.data
     } catch (err) {
         toast.error( err.response?.data?.message)
+        return rejectWithValue(err.response?.data || "Something went wrong");
     }
 })
 

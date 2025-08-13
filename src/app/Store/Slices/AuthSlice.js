@@ -23,17 +23,18 @@ const AuthSlice = createSlice({
         isLogin: false,
         isLoading: false,
     },
-    reducers:{
-      verifyToken(state,action){
-          const token = Cookies.get('job_token');
-          if(token){
-           state.isLogin = true
-          }
-      },
-      logout(state,action){
-        Cookies.remove('job_token');
-        state.isLogin = false
-      }
+    reducers: {
+        verifyToken(state, action) {
+            const token = Cookies.get('job_token');
+            if (token) {
+                state.isLogin = true
+            }
+        },
+        logout(state, action) {
+            Cookies.remove('job_token');
+            Cookies.remove('user_type')
+            state.isLogin = false
+        }
     },
     extraReducers: (builder) => {
         builder.addCase(Auth.pending, (state, action) => {
@@ -45,6 +46,7 @@ const AuthSlice = createSlice({
                 state.isLogin = true;
                 state.isLoading = false;
                 Cookies.set('job_token', action.payload.payload.accessToken)
+                Cookies.set('user_type', action.payload.payload.data.typeOfUser)
             }
         })
         builder.addCase(Auth.rejected, (state, action) => {
@@ -52,5 +54,5 @@ const AuthSlice = createSlice({
         })
     }
 })
-export const {verifyToken,logout} = AuthSlice.actions
+export const { verifyToken, logout } = AuthSlice.actions
 export default AuthSlice.reducer;
