@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { verifyToken, logout } from '../Store/Slices/AuthSlice'
 import { useRouter } from 'next/navigation'
 import { allJob } from '../Store/Slices/AllJobSlice'
+import { JobSearch } from '../Store/Slices/JobSearch'
 import Cookies from 'js-cookie'
 
 const Navbar = () => {
@@ -18,25 +19,38 @@ const Navbar = () => {
     const router = useRouter()
     const { isLogin } = useSelector(state => state.auth);
     const [userType, setuserType] = useState('')
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
+    const [searchValue, setSearchValue] = useState('')
     useEffect(() => {
         dispatch(verifyToken())
         const user = Cookies.get('user_type')
         if (user) {
             setuserType(user)
-        }else{
+        } else {
             setuserType('')
         }
-     }, [isLogin])
+    }, [isLogin])
 
     useEffect(() => {
         dispatch(allJob())
-
     }, [])
 
     const handleLogout = () => {
         dispatch(logout())
         router.push('/')
+    }
+
+    const handleJobSearch = () => {
+        const token = Cookies.get('job_token')
+        if (token) {
+            dispatch(JobSearch(searchValue!='' && searchValue))
+            router.push('/find-job')
+        }else{
+            router.push('/login')
+        }
+    }
+    const handleChange = (e) => {
+        setSearchValue(e.target.value)
     }
     return (
         <>
@@ -75,8 +89,8 @@ const Navbar = () => {
                             </div>
 
                             <div className='relative w-[81%] h-[100%]' >
-                                <input className='w-[100%] h-[100%] ps-[34px] text-[14px] outline-0' placeholder='Job tittle, keyword, company' type='text' />
-                                <Image src={search} alt={search} className='w-[18px] top-[13px] left-[7px] absolute ' />
+                                <input onChange={handleChange} className='w-[100%] h-[100%] ps-[34px] text-[14px] outline-0' placeholder='Job tittle, keyword, company' type='text' />
+                                <Image onClick={handleJobSearch} src={search} alt={search} className='w-[18px] top-[13px] left-[7px] absolute ' />
                             </div>
 
 

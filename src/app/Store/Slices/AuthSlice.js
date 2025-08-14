@@ -13,6 +13,7 @@ export const Auth = createAsyncThunk('Auth', async (loginParams) => {
             return res.data;
         } catch (err) {
             toast.error(err.response?.data?.message)
+            return rejectWithValue(err.response?.data || "Something went wrong");
         }
     }
 })

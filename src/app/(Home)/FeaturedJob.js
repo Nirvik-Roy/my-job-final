@@ -9,13 +9,26 @@ import LoaderNew from '../LoaderNew'
 const FeaturedJob = ({ jobList }) => {
     const router = useRouter();
     const [allJobs, setallJobs] = useState([])
-    const { jobs, isloading, isError } = useSelector(state => state.AllJob)
+    const { jobs, isloading } = useSelector(state => state.AllJob)
+    const [findJobs, setfindJobs] = useState([])
+    const {searchedJob,isError,isLoading} = useSelector(state => state.jobSearch)
     useEffect(() => {
         setallJobs(jobs)
         return (() => {
-            setallJobs(null)
+            setallJobs(null) 
         })
     }, [jobs])
+
+    useEffect(() => {
+        if (searchedJob?.length > 0) {
+           setfindJobs(searchedJob)
+        }else if(isError){
+            setfindJobs(null)
+        }else{
+            setfindJobs(jobs)
+        }
+    }, [searchedJob,isError,jobs])
+    console.log(searchedJob)
     return (
         <>
             {!jobList && <div className='pt-[70px] pb-[70px]'>
@@ -41,7 +54,7 @@ const FeaturedJob = ({ jobList }) => {
                                                     textOverflow: 'ellipsis',
                                                     overflow: 'hidden',
                                                     whiteSpace: 'nowrap'
-                                                }}>{e.title}</h1>
+                                                }}>{e.jobTitle}</h1>
                                                 <div className='flex justify-start items-center gap-3'>
                                                     <div className='flex justify-start items-center gap-1'>
                                                         <i className="fa-solid fa-location-dot text-[#ccc] text-[12px]"></i>
@@ -80,36 +93,63 @@ const FeaturedJob = ({ jobList }) => {
             {jobList && <div className='pt-[0px] pb-[50px] bg-[#fff]'>
                 <div className='uni_container'>
                     <div className='flex flex-col gap-y-8 mt-[20px]'>
-                        {[1, 2, 3, 4, 5].map((e, i) => {
-                            return (
-                                <div onClick={(() => router.push('/single-job/2'))} key={i} className='w-[100%] flex justify-between items-center rounded rounder-[15px] p-[20px] border border-[#eaebf7] '>
-                                    <div className='flex justify-start items-center gap-3'>
-                                        <Image src={logo} alt='logo_img' />
-                                        <div className='flex flex-col gap-3'>
-                                            <h1 className='text-[18px] font-[500]'>Senior UX Designer</h1>
-                                            <div className='flex justify-start items-center gap-3'>
-                                                <div className='flex justify-start items-center gap-1'>
-                                                    <i className="fa-solid fa-location-dot text-[#ccc] text-[12px]"></i>
-                                                    <p className='text-[12px] font-[400] text-gray-600'>Australia</p>
-                                                </div>
-                                                <div className='flex justify-start items-center gap-1'>
-                                                    <i className="fa-solid fa-dollar-sign text-[#ccc] text-[12px]"></i>
-                                                    <p className='text-[12px] font-[400] text-gray-600'>$30K-$35K</p>
-                                                </div>
-                                                <div className='flex justify-start items-center gap-1'>
-                                                    <i className="fa-solid fa-calendar text-[#ccc] text-[12px]"></i>
-                                                    <p className='text-[12px] font-[400] text-gray-600'>4 Days Remaining</p>
-                                                </div>
+                        {isloading && <LoaderNew />}
+                        {isLoading && <div style={{
+                            width:'100%',
+                            height:'100vh',
+                            background:'rgba(0,0,0,0.5)',
+                            position:'fixed',
+                            top:'0',
+                            left:'0',
+                            zIndex:'8',
+                            display:'flex',
+                            justifyContent:'center',
+                            alignItems:'center'
+                        }}>
+                            <LoaderNew/>
+                        </div>}
+                        {/* {isError && <p>No Jobs Found...</p>} */}
+                        {isError && <p>No Jobs Found...</p>}
+                        {findJobs?.map((e, i) => {
+                                return (
+                                    <div onClick={(() => router.push('/single-job/2'))} key={i} className='w-[100%] flex justify-between items-center rounded rounder-[15px] p-[20px] border border-[#eaebf7]'>
+                                        <div className='flex justify-start items-center gap-3'>
+                                            <Image src={logo} alt='logo_img' />
+                                            <div className='flex flex-col gap-3'>
+                                                <h1 className='text-[18px] font-[500]' style={{
+                                                    textOverflow: 'ellipsis',
+                                                    overflow: 'hidden',
+                                                    whiteSpace: 'nowrap'
+                                                }}>{e.jobTitle}</h1>
+                                                <div className='flex justify-start items-center gap-3'>
+                                                    <div className='flex justify-start items-center gap-1'>
+                                                        <i className="fa-solid fa-location-dot text-[#ccc] text-[12px]"></i>
+                                                        <p className='text-[12px] font-[400] text-gray-600' style={{
+                                                            textOverflow: 'ellipsis',
+                                                            overflow: 'hidden',
+                                                            whiteSpace: 'nowrap'
+                                                        }}>{e.location}</p>
+                                                    </div>
+                                                    <div className='flex justify-start items-center gap-1'>
+                                                        <i className="fa-solid fa-dollar-sign text-[#ccc] text-[12px]"></i>
+                                                        <p className='text-[12px] font-[400] text-gray-600'>{(300000 / 1000).toFixed(0)}k-{(500000 / 1000).toFixed(0)}K</p>
+                                                    </div>
+                                                    <div className='flex justify-start items-center gap-1'>
+                                                        <i className="fa-solid fa-calendar text-[#ccc] text-[12px]"></i>
+                                                        <p className='text-[12px] font-[400] text-gray-600'>4 Days Remaining</p>
+                                                    </div>
 
+                                                </div>
                                             </div>
                                         </div>
+                                        <div className='flex items-center gap-3'>
+                                            <i className="fa-regular fa-bookmark text-[20px] text-[#0767d0] cursor-pointer "></i>
+                                            <button className='w-[200px] bg-[#0767d0] text-[#fff] font-[500] pt-[11px] pb-[11px] cursor-pointer'>Apply Now</button>
+                                        </div>
                                     </div>
-                                    <div className='flex items-center gap-3'>
-                                        <i className="fa-regular fa-bookmark text-[20px] text-[#0767d0] cursor-pointer "></i>
-                                        <button className='w-[200px] bg-[#0767d0] text-[#fff] font-[500] pt-[11px] pb-[11px] cursor-pointer'>Apply Now</button>
-                                    </div>
-                                </div>
-                            )
+                                )
+                            
+
                         })}
 
                     </div>
