@@ -43,9 +43,11 @@ const Navbar = () => {
     const handleJobSearch = () => {
         const token = Cookies.get('job_token')
         if (token) {
-            dispatch(JobSearch(searchValue!='' && searchValue))
+            if (searchValue !== '') {
+                dispatch(JobSearch(searchValue != '' && searchValue))
+            }
             router.push('/find-job')
-        }else{
+        } else {
             router.push('/login')
         }
     }
