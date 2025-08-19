@@ -88,7 +88,7 @@ const page = () => {
 
                                 <div className="text-sm">
                                     <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
-                                        Already have an account?
+                                        Don't have a account ?
                                     </Link>
                                 </div>
                             </div>

@@ -308,7 +308,7 @@ const page = () => {
     return (
         <>
             <div className="min-h-screen bg-white text-slate-800 flex flex-col">
-                <div className="flex  uni_container">
+                <div className="flex uni_container">
                     <Sidebar />
                     <Dashboard />
                 </div>

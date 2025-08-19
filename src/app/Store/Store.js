@@ -4,13 +4,17 @@ import AllJobSlice from './Slices/AllJobSlice'
 import JobSearchSlice from './Slices/JobSearch'
 import ApplyJobSlice from './Slices/ApplyJobSlice'
 import GetApplyJobSlice from './Slices/GetApplyJobSlice'
+import SaveJobSlice from './Slices/SaveJobSlice'
+import GetSavedJobDataSlice from './Slices/GetSavedJobDataSlice'
 const store = configureStore({
     reducer: {
         auth: AuthSlice,
         AllJob: AllJobSlice,
         jobSearch: JobSearchSlice,
         apply_job: ApplyJobSlice,
-        get_applyJobs:GetApplyJobSlice
+        get_applyJobs:GetApplyJobSlice,
+        savedJob:SaveJobSlice,
+        getSavedJob:GetSavedJobDataSlice
     }
 })
 

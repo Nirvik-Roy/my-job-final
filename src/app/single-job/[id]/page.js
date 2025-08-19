@@ -10,10 +10,15 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 import { ApplyJob } from '../../Store/Slices/ApplyJobSlice'
 import { useDispatch, useSelector } from 'react-redux'
+import { SaveJob } from '@/app/Store/Slices/SaveJobSlice'
+import { getSaveJobData } from '@/app/Store/Slices/GetSavedJobDataSlice'
 const page = () => {
   const dispatch = useDispatch()
   const { applyLoading, appliedJobIds } = useSelector(state => state.apply_job)
+  const { saveJobIds, isLoading, isError } = useSelector(state => state.savedJob)
+  const { savedJobdata } = useSelector(state => state.getSavedJob)
   const [appliedJobs, setAppliedJobs] = useState([])
+  const [saveJobId, setSaveJobId] = useState([])
   const [singleJob, setSingleJob] = useState([])
   const { id } = useParams()
   const getJobsByID = async () => {
@@ -33,19 +38,52 @@ const page = () => {
     getJobsByID()
   }, [])
 
+  useEffect(() => {
+    dispatch(getSaveJobData())
+  }, [])
+
+  useEffect(() => {
+    if (savedJobdata?.length > 0) {
+      const ids = savedJobdata.map(e => e._id)
+      if (ids) {
+        setSaveJobId(ids)
+      }
+    }
+  }, [savedJobdata,])
+
+  useEffect(() => {
+    if (saveJobIds?.length > 0) {
+      setSaveJobId(saveJobIds)
+    }
+  }, [saveJobIds, isLoading])
+
   const handleApplyJob = (job_id) => {
-    dispatch(ApplyJob({
-      jobId: job_id
-    }))
+    if (job_id) {
+      dispatch(ApplyJob({
+        jobId: job_id
+      }))
+    }
   }
   useEffect(() => {
-    if (appliedJobIds.length > 0) {
+    if (appliedJobIds?.length > 0) {
       setAppliedJobs(appliedJobIds)
     }
     else {
       setAppliedJobs([])
     }
   }, [appliedJobIds, applyLoading])
+
+  const HandleSaveJob = (id) => {
+    if (saveJobId.includes(id)) {
+      //  Here I have to call the dispacth of the delete bookmark job// 
+      // And after that I have to use useffect to fetch the data from the state..
+      // And update the saveJobId state with the new deleted id data which I will get from the state..
+    } else {
+      dispatch(SaveJob({
+        jobId: id
+      }))
+    }
+  }
   return (
     <>
       <div className='bg-[#fff] pt-[30px] pb-[50px]'>
@@ -73,7 +111,7 @@ const page = () => {
                 </div>
               </div>
               <div className='flex items-center gap-3'>
-                <i className="fa-regular fa-bookmark text-[20px] text-[#0767d0] cursor-pointer "></i>
+                {saveJobId.includes(e._id) ? <i onClick={(() => HandleSaveJob(e._id))} className="fa-solid fa-bookmark text-[20px] text-[#0767d0] cursor-pointer "></i> : <i onClick={(() => HandleSaveJob(e._id))} className="fa-regular fa-bookmark text-[20px] text-[#0767d0] cursor-pointer "></i>}
                 <button onClick={(() => handleApplyJob(e._id))} className='w-[200px] bg-[#0767d0] text-[#fff] font-[500] pt-[11px] pb-[11px] cursor-pointer'>{appliedJobs.includes(e._id) ? 'Applied' : 'Apply Now'}</button>
               </div>
             </div>

@@ -71,7 +71,7 @@ const JobSearchSlice = createSlice({
         builder.addCase(AdvanceJobSearch.rejected, (state, action) => {
             state.isLoading = false
             state.isError = true,
-                state.searchedJob = []
+            state.searchedJob = []
         })
     }
 })
