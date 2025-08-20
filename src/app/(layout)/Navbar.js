@@ -21,6 +21,7 @@ const Navbar = () => {
     const [userType, setuserType] = useState('')
     const dispatch = useDispatch();
     const [searchValue, setSearchValue] = useState('')
+    const token = Cookies.get('job_token')
     useEffect(() => {
         dispatch(verifyToken())
         const user = Cookies.get('user_type')
@@ -33,7 +34,7 @@ const Navbar = () => {
 
     useEffect(() => {
         dispatch(allJob())
-    }, [])
+    }, [token,isLogin])
 
     const handleLogout = () => {
         dispatch(logout())
@@ -61,7 +62,7 @@ const Navbar = () => {
                     <div className='flex justify-start align-items-center gap-5 text-[13px] font-normal text-gray-500'>
                         <Link href={'/'}>Home</Link>
                         <Link href={'/find-job'}>Find Job</Link>
-                        <Link href={''}>Dashboard</Link>
+                        <Link href={'/dashboard'}>Dashboard</Link>
                         <Link href={''}>Pricing Plans</Link>
                         <Link href={''}>Customer Supports</Link>
                     </div>

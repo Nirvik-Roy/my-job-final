@@ -17,6 +17,7 @@ const FeaturedJob = ({ jobList }) => {
     const [appliedJobsId, setappliedJobsId] = useState([])
     const { searchedJob, isError, isLoading } = useSelector(state => state.jobSearch)
     const { isLogin } = useSelector(state => state.auth)
+    const token = Cookies.get('job_token')
     const dispatch = useDispatch()
     const [noFilterJobsFound, setnoFilterJobsFound] = useState(false)
     useEffect(() => {
@@ -27,7 +28,7 @@ const FeaturedJob = ({ jobList }) => {
             setappliedJobsId([]);
         }
         return () => setappliedJobsId([]);
-    }, [applyJobsData, getloadingData]);
+    }, [applyJobsData, getloadingData, isLogin]);
 
     useEffect(() => {
         const userType = Cookies.get('user_type');
@@ -40,16 +41,16 @@ const FeaturedJob = ({ jobList }) => {
         } else {
             setallJobs(jobs);
         }
-    }, [jobs, appliedJobsId, isLogin]);
+    }, [jobs, appliedJobsId]);
 
 
     useEffect(() => {
-        if (searchedJob?.length > 0) {
+        if (searchedJob?.length > 0 && isLogin) {
             const filteredJobs = searchedJob.filter(e => !appliedJobsId?.includes(e._id))
             setfindJobs(filteredJobs.length ? filteredJobs : [])
             if (filteredJobs.length === 0) {
                 setnoFilterJobsFound(true)
-            }else{
+            } else {
                 setnoFilterJobsFound(false)
             }
         } else if (isError) {
@@ -57,17 +58,22 @@ const FeaturedJob = ({ jobList }) => {
         } else {
             const filteredJobs = jobs.filter(e => !appliedJobsId?.includes(e._id))
             setfindJobs(jobs.length ? filteredJobs : [])
+            if (!isLogin) {
+                setfindJobs(jobs)
+            }
             if (filteredJobs.length === 0) {
                 setnoFilterJobsFound(true)
-            }else{
+            } else {
                 setnoFilterJobsFound(false)
             }
         }
-    }, [searchedJob, isError, jobs, appliedJobsId])
 
+    }, [searchedJob, isError, jobs, appliedJobsId, isLogin])
 
     useEffect(() => {
-        dispatch(GetApplyJobs())
+        if (token) {
+            dispatch(GetApplyJobs())
+        }
     }, [])
 
     return (
@@ -167,14 +173,7 @@ const FeaturedJob = ({ jobList }) => {
                                                 whiteSpace: 'nowrap'
                                             }}>{e.jobTitle}</h1>
                                             <div className='flex justify-start items-center gap-3'>
-                                                <div className='flex justify-start items-center gap-1'>
-                                                    <i className="fa-solid fa-location-dot text-[#ccc] text-[12px]"></i>
-                                                    <p className='text-[12px] font-[400] text-gray-600' style={{
-                                                        textOverflow: 'ellipsis',
-                                                        overflow: 'hidden',
-                                                        whiteSpace: 'nowrap'
-                                                    }}>{e.location}</p>
-                                                </div>
+
                                                 <div className='flex justify-start items-center gap-1'>
                                                     <i className="fa-solid fa-dollar-sign text-[#ccc] text-[12px]"></i>
                                                     <p className='text-[12px] font-[400] text-gray-600'>{(300000 / 1000).toFixed(0)}k-{(500000 / 1000).toFixed(0)}K</p>

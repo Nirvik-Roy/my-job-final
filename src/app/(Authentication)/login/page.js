@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux'
 const page = () => {
     const dispatch = useDispatch()
     const router = useRouter()
-    const { isLogin } = useSelector(state => state.auth)
+    const { isLogin ,isLoading} = useSelector(state => state.auth)
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -30,12 +30,12 @@ const page = () => {
         }
     }
     useEffect(() => {
-        if (isLogin) {
+        if (isLogin && !isLoading) {
             setTimeout(() => {
                 router.push('/')
             }, 2000)
         }
-    }, [isLogin])
+    }, [isLogin,isLoading,router])
     return (
         <>
             <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">

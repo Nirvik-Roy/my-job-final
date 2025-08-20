@@ -8,7 +8,6 @@ const { createSlice, createAsyncThunk } = require("@reduxjs/toolkit");
 export const getSaveJobData = createAsyncThunk('getSaveJobData', async () => {
     const token = Cookies.get('job_token');
     const userType = Cookies.get('user_type');
-
     if (token && userType === 'JobSeeker') {
         try {
             const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}job/bookmark-job`, {
@@ -20,10 +19,11 @@ export const getSaveJobData = createAsyncThunk('getSaveJobData', async () => {
                 return res.data
             }
         } catch (err) {
+            toast.error(err.response?.data.message)
             return rejectWithValue(err.response?.data.message || "Something went wrong");
         }
     } else {
-        toast.error('Plz login as a jobSeeker to apply/save jobs')
+        return rejectWithValue( "Something went wrong");
     }
 })
 

@@ -16,6 +16,9 @@ export const JobSearch = createAsyncThunk('JobSearch', async (searchParams) => {
         } catch (err) {
             return rejectWithValue(err.response?.data || "Something went wrong");
         }
+    }else{
+        toast.error('Plz Login to search jobs')
+         return rejectWithValue( "Something went wrong");
     }
 })
 
@@ -34,6 +37,9 @@ export const AdvanceJobSearch = createAsyncThunk('AdvanceJobSearch', async (sear
             toast.error(err.response.data.message || err.message || 'Unexpected Error Occured')
             return rejectWithValue(err.response?.data || "Something went wrong");
         }
+    }else{
+        toast.error('Plz Login to search jobs')
+         return rejectWithValue( "Something went wrong");
     }
 })
 

@@ -25,6 +25,8 @@ export const SaveJob = createAsyncThunk('SaveJob', async (job_id) => {
         }
     } else {
         toast.error('Plz login as a jobSeeker to apply/save jobs')
+        return rejectWithValue("Something went wrong");
+        
     }
 })
 
@@ -43,7 +45,7 @@ const SaveJobSlice = createSlice({
         builder.addCase(SaveJob.fulfilled, (state, action) => {
             state.isError = false;
             state.isLoading = false;
-            state.saveJobIds= action.payload.payload?.jobIds
+            state.saveJobIds= action.payload?.payload?.jobIds
         })
         builder.addCase(SaveJob.rejected, (state, action) => {
             state.isError = false;

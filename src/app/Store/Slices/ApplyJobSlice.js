@@ -45,7 +45,7 @@ const ApplyJobSlice = createSlice({
         builder.addCase(ApplyJob.fulfilled, (state, action) => {
             state.applyLoading = false;
             state.applyError = false;
-            state.appliedJobIds.push(...action.payload.payload?.jobIds)
+            state.appliedJobIds = action.payload?.payload?.jobIds
         })
         builder.addCase(ApplyJob.rejected, (state, action) => {
             state.applyLoading = false;

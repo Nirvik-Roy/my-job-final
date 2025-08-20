@@ -21,13 +21,15 @@ const page = () => {
   const [saveJobId, setSaveJobId] = useState([])
   const [singleJob, setSingleJob] = useState([])
   const { id } = useParams()
+  const token = Cookies.get('job_token')
+  const user_type = Cookies.get('user_type')
   const getJobsByID = async () => {
-    const token = Cookies.get('job_token')
-    if (token && id) {
+
+    if (id) {
       try {
         const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}job/allJobs/${id}`);
         if (res?.data?.success == true) {
-          setSingleJob([res.data?.payload.job])
+          setSingleJob([res.data?.payload?.job])
         }
       } catch (err) {
         toast.error(err.response?.data?.message || err.message || 'Unexpected Error Occured')
@@ -39,8 +41,11 @@ const page = () => {
   }, [])
 
   useEffect(() => {
-    dispatch(getSaveJobData())
-  }, [])
+    if (token && user_type == 'JobSeeker') {
+      dispatch(getSaveJobData())
+      console.log('hello')
+    }
+  }, [token,user_type])
 
   useEffect(() => {
     if (savedJobdata?.length > 0) {

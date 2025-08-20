@@ -52,6 +52,7 @@ const AuthSlice = createSlice({
         })
         builder.addCase(Auth.rejected, (state, action) => {
             state.isLoading = false;
+            state.isLogin = false;
         })
     }
 })

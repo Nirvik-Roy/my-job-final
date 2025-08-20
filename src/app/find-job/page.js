@@ -10,9 +10,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AdvanceJobSearch } from '../Store/Slices/JobSearch'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
+import Cookies from 'js-cookie'
 
 const page = () => {
     const dispatch = useDispatch();
+    const token = Cookies.get('job_token')
     const SearchJobData = useSelector(state => state.jobSearch)
     const [inputValue, setInputValue] = useState({
         title: '',
@@ -33,13 +35,19 @@ const page = () => {
             [e.target.name]: e.target.value
         })
     }
+
     const handleSubmit = (e) => {
         e.preventDefault()
-        if (inputValue.jobType != '' || inputValue.title != '' || inputValue.minSalary != '') {
-            dispatch(AdvanceJobSearch(inputValue))
-        } else {
-            toast.error('Please fill all the fields')
+        if (token) {
+            if (inputValue.jobType != '' || inputValue.title != '' || inputValue.minSalary != '') {
+                dispatch(AdvanceJobSearch(inputValue))
+            } else {
+                toast.error('Please fill all the fields')
+            }
+        }else{
+            toast.error('plz login to search job')
         }
+
     }
     return (
         <>

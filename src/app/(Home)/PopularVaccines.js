@@ -30,7 +30,7 @@ const PopularVaccines = () => {
                                             textOverflow: 'ellipsis',
                                             whiteSpace: 'nowrap',
                                             overflow: 'hidden'
-                                        }}>{e.title}</p>
+                                        }}>{e.jobTitle}</p>
                                         <small className='text-[12px] text-gray-400'>45,904 Open Positions</small>
                                     </div>
                                 )

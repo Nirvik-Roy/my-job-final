@@ -17,6 +17,8 @@ export const GetApplyJobs = createAsyncThunk('GetApplyJobs', async () => {
         } catch (err) {
             console.log(err)
         }
+    } else {
+        return rejectWithValue('Please login as a jobSeeker to apply')
     }
 })
 
@@ -35,7 +37,7 @@ const GetApplyJobSlice = createSlice({
         builder.addCase(GetApplyJobs.fulfilled, (state, action) => {
             state.getloadingData = false,
                 state.getApplyError = false
-            state.applyJobsData = action.payload?.payload?.applied_jobs
+            state.applyJobsData = action.payload.payload?.applied_jobs
         })
         builder.addCase(GetApplyJobs.rejected, (state, action) => {
             state.getloadingData = false,
