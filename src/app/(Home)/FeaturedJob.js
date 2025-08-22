@@ -55,12 +55,12 @@ const FeaturedJob = ({ jobList }) => {
             }
         } else if (isError) {
             setfindJobs(null)
+        } else if (!isLogin) {
+            setfindJobs(jobs)
         } else {
             const filteredJobs = jobs.filter(e => !appliedJobsId?.includes(e._id))
             setfindJobs(jobs.length ? filteredJobs : [])
-            if (!isLogin) {
-                setfindJobs(jobs)
-            }
+
             if (filteredJobs.length === 0) {
                 setnoFilterJobsFound(true)
             } else {

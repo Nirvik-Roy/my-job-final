@@ -12,11 +12,13 @@ import { ApplyJob } from '../../Store/Slices/ApplyJobSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { SaveJob } from '@/app/Store/Slices/SaveJobSlice'
 import { getSaveJobData } from '@/app/Store/Slices/GetSavedJobDataSlice'
+import { RemoveSaveJob } from '@/app/Store/Slices/RemoveSaveJobSlice'
 const page = () => {
   const dispatch = useDispatch()
   const { applyLoading, appliedJobIds } = useSelector(state => state.apply_job)
   const { saveJobIds, isLoading, isError } = useSelector(state => state.savedJob)
   const { savedJobdata } = useSelector(state => state.getSavedJob)
+  const {freshJobIds,removeLoading} = useSelector(state => state.removesaveJob)
   const [appliedJobs, setAppliedJobs] = useState([])
   const [saveJobId, setSaveJobId] = useState([])
   const [singleJob, setSingleJob] = useState([])
@@ -24,7 +26,6 @@ const page = () => {
   const token = Cookies.get('job_token')
   const user_type = Cookies.get('user_type')
   const getJobsByID = async () => {
-
     if (id) {
       try {
         const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}job/allJobs/${id}`);
@@ -43,7 +44,6 @@ const page = () => {
   useEffect(() => {
     if (token && user_type == 'JobSeeker') {
       dispatch(getSaveJobData())
-      console.log('hello')
     }
   }, [token,user_type])
 
@@ -54,7 +54,7 @@ const page = () => {
         setSaveJobId(ids)
       }
     }
-  }, [savedJobdata,])
+  }, [savedJobdata])
 
   useEffect(() => {
     if (saveJobIds?.length > 0) {
@@ -80,15 +80,19 @@ const page = () => {
 
   const HandleSaveJob = (id) => {
     if (saveJobId.includes(id)) {
-      //  Here I have to call the dispacth of the delete bookmark job// 
-      // And after that I have to use useffect to fetch the data from the state..
-      // And update the saveJobId state with the new deleted id data which I will get from the state..
+      dispatch(RemoveSaveJob(id))
     } else {
       dispatch(SaveJob({
         jobId: id
       }))
     }
   }
+  
+  useEffect(()=>{
+     if(freshJobIds.length > 0){
+      setSaveJobId(freshJobIds)
+     }
+  },[freshJobIds])
   return (
     <>
       <div className='bg-[#fff] pt-[30px] pb-[50px]'>
