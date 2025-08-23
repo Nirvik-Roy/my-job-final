@@ -62,3 +62,7 @@ h1,h2,h3,h4,h5,h6{
   margin-inline: auto;
 }
 }
+button:disabled{
+  background-color: #0668d06f;
+  cursor: not-allowed;
+}

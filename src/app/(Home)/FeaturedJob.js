@@ -1,13 +1,13 @@
 'use client'
-
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 import logo from '../../Assets/Employers Logo.png'
-import { useRouter } from 'next/navigation'
+import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useDispatch, useSelector } from 'react-redux'
 import { GetApplyJobs } from '../Store/Slices/GetApplyJobSlice'
 import LoaderNew from '../LoaderNew'
 import Cookies from 'js-cookie'
+import { allJob } from '../Store/Slices/AllJobSlice'
 const FeaturedJob = ({ jobList }) => {
     const router = useRouter();
     const [allJobs, setallJobs] = useState([])
@@ -18,8 +18,8 @@ const FeaturedJob = ({ jobList }) => {
     const { searchedJob, isError, isLoading } = useSelector(state => state.jobSearch)
     const { isLogin } = useSelector(state => state.auth)
     const token = Cookies.get('job_token')
+    const location = usePathname()
     const dispatch = useDispatch()
-    const [noFilterJobsFound, setnoFilterJobsFound] = useState(false)
     useEffect(() => {
         if (applyJobsData?.length) {
             const ids = applyJobsData.map(el => el._id);
@@ -31,44 +31,37 @@ const FeaturedJob = ({ jobList }) => {
     }, [applyJobsData, getloadingData, isLogin]);
 
     useEffect(() => {
-        const userType = Cookies.get('user_type');
-        if (userType === 'JobSeeker' && jobs?.length > 0 && appliedJobsId?.length >= 0) {
-            const filteredJobs = jobs.filter(e => !appliedJobsId.includes(e._id));
-            setallJobs(filteredJobs.length ? filteredJobs : []);
-            if (filteredJobs.length === 0) {
-                setnoFilterJobsFound(true)
-            }
-        } else {
-            setallJobs(jobs);
-        }
+        setallJobs(jobs);
     }, [jobs, appliedJobsId]);
 
+    useEffect(() => {
+        if (jobList) {
+            dispatch(allJob({
+                limit: 12,
+                currentPage: 1,
+            }))
+        } else {
+            dispatch(allJob({
+                limit: null,
+                currentPage: null,       
+            }))
+        }
+    }, [applyJobsData])
+    useEffect(() => {
+        if (jobs.length > 0) {
+            setfindJobs(jobs)
+        }
+    }, [jobs])
 
     useEffect(() => {
         if (searchedJob?.length > 0 && isLogin) {
-            const filteredJobs = searchedJob.filter(e => !appliedJobsId?.includes(e._id))
-            setfindJobs(filteredJobs.length ? filteredJobs : [])
-            if (filteredJobs.length === 0) {
-                setnoFilterJobsFound(true)
-            } else {
-                setnoFilterJobsFound(false)
-            }
+            setfindJobs(searchedJob)
         } else if (isError) {
-            setfindJobs(null)
+            setfindJobs([])
         } else if (!isLogin) {
             setfindJobs(jobs)
-        } else {
-            const filteredJobs = jobs.filter(e => !appliedJobsId?.includes(e._id))
-            setfindJobs(jobs.length ? filteredJobs : [])
-
-            if (filteredJobs.length === 0) {
-                setnoFilterJobsFound(true)
-            } else {
-                setnoFilterJobsFound(false)
-            }
         }
-
-    }, [searchedJob, isError, jobs, appliedJobsId, isLogin])
+    }, [searchedJob, isError, appliedJobsId, isLogin, jobs])
 
     useEffect(() => {
         if (token) {
@@ -90,7 +83,7 @@ const FeaturedJob = ({ jobList }) => {
                     <div className='flex flex-col gap-y-8 mt-[40px]'>
                         {isloading && <LoaderNew />}
                         {isError && <p>No Jobs Found...</p>}
-                        {noFilterJobsFound && <p>No Recent Jobs Found</p>}
+
                         {allJobs?.map((e, i) => {
                             if (i < 10) {
                                 return (
@@ -126,14 +119,12 @@ const FeaturedJob = ({ jobList }) => {
                                         </div>
                                         <div className='flex items-center gap-3'>
                                             <i className="fa-regular fa-bookmark text-[20px] text-[#0767d0] cursor-pointer "></i>
-                                            <button className='w-[200px] bg-[#0767d0] text-[#fff] font-[500] pt-[11px] pb-[11px] cursor-pointer'>Apply Now</button>
+                                            <button className='w-[200px] bg-[#0767d0] text-[#fff] font-[500] pt-[11px] pb-[11px] cursor-pointer' disabled={appliedJobsId.includes(e._id)}>{appliedJobsId.includes(e._id) ? 'Applied' : "Apply Now"}</button>
                                         </div>
                                     </div>
                                 )
                             }
-
                         })}
-
                     </div>
                 </div>
             </div>}
@@ -158,7 +149,6 @@ const FeaturedJob = ({ jobList }) => {
                         </div>}
                         {/* {isError && <p>No Jobs Found...</p>} */}
                         {isError && <p>No Jobs Found...</p>}
-                        {noFilterJobsFound && <p>No Recent Jobs Found</p>}
                         {findJobs?.map((e, i) => {
                             return (
                                 <div onClick={(() => {
@@ -188,12 +178,10 @@ const FeaturedJob = ({ jobList }) => {
                                     </div>
                                     <div className='flex items-center gap-3'>
                                         <i className="fa-regular fa-bookmark text-[20px] text-[#0767d0] cursor-pointer "></i>
-                                        <button className='w-[200px] bg-[#0767d0] text-[#fff] font-[500] pt-[11px] pb-[11px] cursor-pointer'>Apply Now</button>
+                                        <button className='w-[200px] bg-[#0767d0] text-[#fff] font-[500] pt-[11px] pb-[11px]  cursor-pointer' disabled={appliedJobsId.includes(e._id)}>{appliedJobsId.includes(e._id) ? 'Applied' : "Apply Now"}</button>
                                     </div>
                                 </div>
                             )
-
-
                         })}
 
                     </div>

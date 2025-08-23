@@ -8,14 +8,21 @@ import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import { useDispatch, useSelector } from 'react-redux'
 import { AdvanceJobSearch } from '../Store/Slices/JobSearch'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import Cookies from 'js-cookie'
+import LoaderNew from '../LoaderNew'
+import { allJob } from '../Store/Slices/AllJobSlice'
 
 const page = () => {
     const dispatch = useDispatch();
     const token = Cookies.get('job_token')
     const SearchJobData = useSelector(state => state.jobSearch)
+    const { pagination, isloading , jobs } = useSelector(state => state.AllJob);
+    const [totalPages, settotalPages] = useState()
+    const [currentPage, setcurrentPage] = useState(1)
+    const [limit, setLimit] = useState(12)
+    const { noOfPages } = pagination
     const [inputValue, setInputValue] = useState({
         title: '',
         jobType: '',
@@ -35,7 +42,6 @@ const page = () => {
             [e.target.name]: e.target.value
         })
     }
-
     const handleSubmit = (e) => {
         e.preventDefault()
         if (token) {
@@ -44,10 +50,39 @@ const page = () => {
             } else {
                 toast.error('Please fill all the fields')
             }
-        }else{
+        } else {
             toast.error('plz login to search job')
         }
+    }
+    useEffect(() => {
+        if (pagination && isloading == false && noOfPages > 0) {
+            settotalPages(Array.from({ length: noOfPages }, (e, i) => (i + 1)))
+        }
+    }, [pagination, isloading, noOfPages])
 
+    const HandleLimitChange = (e,val) => {
+        const { value } = e.target
+        if (value) {
+            const limitVariable = value === '12 per page' ? 12 : value === '6 per page' ? 6 : value === '3 per page' ? 3 : 12
+            setLimit(limitVariable)
+
+            if (limitVariable > 0) {
+                dispatch(allJob({
+                    limit: limitVariable,
+                    currentPage: 1
+                }))
+            }
+        }
+    }
+
+    const handleCurrentPage = (e) => {
+        if (e) {
+            setcurrentPage(e)
+            dispatch(allJob({
+               currentPage:e,
+               limit:limit          
+            }))
+        }
     }
     return (
         <>
@@ -93,7 +128,7 @@ const page = () => {
                             <option>Old</option>
                         </select>
 
-                        <select className='w-[180px] text-[13px] outline-0 border border-1 border-[#ccc] rounded-[5px] pt-[10px] pb-[10px] ps-[10px] '>
+                        <select onChange={HandleLimitChange} className='w-[180px] text-[13px] outline-0 border border-1 border-[#ccc] rounded-[5px] pt-[10px] pb-[10px] ps-[10px] '>
                             <option>12 per page</option>
                             <option>3 per page</option>
                             <option>6 per page</option>
@@ -107,8 +142,8 @@ const page = () => {
                         <div className='w-[35px] h-[35px] bg-[#e7effa] rounded-[50%] text-[12px] flex justify-center items-center text-[#0a65cd]'>
                             <i className="fa-solid fa-arrow-left"></i>
                         </div>
-                        {[1, 2, 3, 4, 5].map((e, i) => (
-                            <div key={i} className='w-[30px] h-[30px] bg-[#0a65cd] rounded-[50%] flex justify-center items-center text-[12px] text-[#fff]'>
+                        {totalPages?.map((e, i) => (
+                            <div onClick={(()=>handleCurrentPage(e))}  key={e} className='w-[30px] h-[30px] bg-[#0a65cd] rounded-[50%] flex justify-center items-center text-[12px] text-[#fff]'>
                                 <p>{e}</p>
                             </div>
                         ))}
