@@ -8,6 +8,7 @@ import { GetApplyJobs } from '../Store/Slices/GetApplyJobSlice'
 import LoaderNew from '../LoaderNew'
 import Cookies from 'js-cookie'
 import { allJob } from '../Store/Slices/AllJobSlice'
+import { verifyToken } from '../Store/Slices/AuthSlice'
 const FeaturedJob = ({ jobList }) => {
     const router = useRouter();
     const [allJobs, setallJobs] = useState([])
@@ -73,7 +74,6 @@ const FeaturedJob = ({ jobList }) => {
             dispatch(GetApplyJobs())
         }
     }, [])
-
 
     return (
         <>
