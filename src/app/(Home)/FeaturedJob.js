@@ -19,8 +19,8 @@ const FeaturedJob = ({ jobList }) => {
     const { searchedJob, isError, isLoading } = useSelector(state => state.jobSearch)
     const { isLogin } = useSelector(state => state.auth)
     const token = Cookies.get('job_token')
-    const location = usePathname()
     const dispatch = useDispatch()
+
     useEffect(() => {
         if (applyJobsData?.length) {
             const ids = applyJobsData.map(el => el._id);
@@ -48,38 +48,32 @@ const FeaturedJob = ({ jobList }) => {
             }))
         }
     }, [applyJobsData])
-    useEffect(() => {
-        if (jobs.length > 0) {
-            setfindJobs(jobs)
-        }
-    }, [jobs])
 
     useEffect(() => {
-        if (searchedJob?.length > 0 && isLogin) {
-            setfindJobs(searchedJob)
-            return;
-        }
-        if (isError) {
-            setfindJobs([])
-            return;
-        }
         if (!isLogin) {
-            setfindJobs(jobs)
+            setfindJobs(jobs);
+            return;
+        }
+        if (searchedJob?.length > 0) {
+            setfindJobs(searchedJob);
             return;
         }
 
-        if (AllJobData.isError) {
-            setfindJobs([])
+        if (isError || AllJobData.isError) {
+            setfindJobs([]);
             return;
         }
 
-    }, [searchedJob, isError, appliedJobsId, isLogin, jobs,AllJobData])
+        // Fallback: if none of the above, maybe revert to all jobs
+        setfindJobs(jobs);
+    }, [isLogin, searchedJob, isError, AllJobData.isError, jobs]);
 
     useEffect(() => {
-        if (token) {
+        if (token ) {
             dispatch(GetApplyJobs())
         }
     }, [])
+
 
     return (
         <>
@@ -160,7 +154,7 @@ const FeaturedJob = ({ jobList }) => {
                             <LoaderNew />
                         </div>}
                         {(isError || AllJobData.isError) && <p>No Jobs Found...</p>}
-                   
+
                         {/* {isError == true && <p>No Jobs Found...</p>} */}
                         {findJobs?.map((e, i) => {
                             return (

@@ -7,7 +7,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import { useDispatch, useSelector } from 'react-redux'
-import { AdvanceJobSearch, JobSearch } from '../Store/Slices/JobSearch'
+import { addAdvanceSearchValue, AdvanceJobSearch, JobSearch } from '../Store/Slices/JobSearch'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import Cookies from 'js-cookie'
@@ -17,7 +17,7 @@ import { allJob } from '../Store/Slices/AllJobSlice'
 const page = () => {
     const dispatch = useDispatch();
     const token = Cookies.get('job_token')
-    const { searchedJob, searchTitle } = useSelector(state => state.jobSearch)
+    const { searchedJob, searchTitle, searchJobType, searchMinSalary, advanceSearch } = useSelector(state => state.jobSearch)
     const { pagination, isloading, jobs, isError } = useSelector(state => state.AllJob);
     const [totalPages, settotalPages] = useState()
     const [currentPage, setcurrentPage] = useState(1)
@@ -42,11 +42,17 @@ const page = () => {
             [e.target.name]: e.target.value
         })
     }
+
     const handleSubmit = (e) => {
         e.preventDefault()
         if (token) {
             if (inputValue.jobType != '' || inputValue.title != '' || inputValue.minSalary != '') {
-                dispatch(AdvanceJobSearch(inputValue))
+                dispatch(AdvanceJobSearch({ advancesearchParams: inputValue }))
+                dispatch(addAdvanceSearchValue({
+                    searchTitle: inputValue.title,
+                    searchJobType: inputValue.jobType,
+                    searchMinSalary: inputValue.searchMinSalary
+                }))
             } else {
                 toast.error('Please fill all the fields')
             }
@@ -73,6 +79,18 @@ const page = () => {
                 }))
 
             }
+            if (advanceSearch && searchedJob > 0) {
+                const searchDataObj = {
+                    title: searchTitle,
+                    jobType: searchJobType,
+                    minSalary: searchMinSalary
+                }
+                let value = {
+                    limit: limit,
+                    currentPage: e
+                }
+                dispatch(AdvanceJobSearch({ advancesearchParams: searchDataObj, value }))
+            }
             if (limitVariable && searchedJob.length <= 0) {
                 dispatch(allJob({
                     limit: limitVariable,
@@ -84,6 +102,7 @@ const page = () => {
     }
 
     const handleCurrentPage = (e) => {
+
         if (searchedJob.length > 0 || searchTitle != '') {
             setcurrentPage(e)
             dispatch(JobSearch({
@@ -91,7 +110,20 @@ const page = () => {
                 limit: limit,
                 currentPage: e
             }))
-        } else {
+
+        } else if (searchTitle || searchJobType || searchMinSalary) {
+            const searchDataObj = {
+                title: searchTitle,
+                jobType: searchJobType,
+                minSalary: searchMinSalary
+            }
+            let value = {
+                limit: limit,
+                currentPage: e
+            }
+            dispatch(AdvanceJobSearch({ advancesearchParams: searchDataObj, value }))
+        }
+        else {
             setcurrentPage(e)
             dispatch(allJob({
                 currentPage: e,
@@ -99,8 +131,6 @@ const page = () => {
             }))
         }
     }
-
-    console.log(searchTitle)
     return (
         <>
             <div className='w-[100%] pt-[30px] pb-[30px] bg-[#f1f2f4]'>
