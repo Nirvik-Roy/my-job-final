@@ -7,7 +7,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import { useDispatch, useSelector } from 'react-redux'
-import { AdvanceJobSearch } from '../Store/Slices/JobSearch'
+import { AdvanceJobSearch, JobSearch } from '../Store/Slices/JobSearch'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import Cookies from 'js-cookie'
@@ -17,8 +17,8 @@ import { allJob } from '../Store/Slices/AllJobSlice'
 const page = () => {
     const dispatch = useDispatch();
     const token = Cookies.get('job_token')
-    const SearchJobData = useSelector(state => state.jobSearch)
-    const { pagination, isloading , jobs } = useSelector(state => state.AllJob);
+    const { searchedJob, searchTitle } = useSelector(state => state.jobSearch)
+    const { pagination, isloading, jobs, isError } = useSelector(state => state.AllJob);
     const [totalPages, settotalPages] = useState()
     const [currentPage, setcurrentPage] = useState(1)
     const [limit, setLimit] = useState(12)
@@ -60,30 +60,47 @@ const page = () => {
         }
     }, [pagination, isloading, noOfPages])
 
-    const HandleLimitChange = (e,val) => {
+    const HandleLimitChange = (e, val) => {
         const { value } = e.target
         if (value) {
             const limitVariable = value === '12 per page' ? 12 : value === '6 per page' ? 6 : value === '3 per page' ? 3 : 12
             setLimit(limitVariable)
+            if (searchedJob.length > 0) {
+                dispatch(JobSearch({
+                    searchTitle: searchTitle,
+                    limit: limitVariable,
+                    currentPage: currentPage
+                }))
 
-            if (limitVariable > 0) {
+            }
+            if (limitVariable && searchedJob.length <= 0) {
                 dispatch(allJob({
                     limit: limitVariable,
-                    currentPage: 1
+                    currentPage: currentPage
                 }))
+
             }
         }
     }
 
     const handleCurrentPage = (e) => {
-        if (e) {
+        if (searchedJob.length > 0 || searchTitle != '') {
+            setcurrentPage(e)
+            dispatch(JobSearch({
+                searchTitle: searchTitle,
+                limit: limit,
+                currentPage: e
+            }))
+        } else {
             setcurrentPage(e)
             dispatch(allJob({
-               currentPage:e,
-               limit:limit          
+                currentPage: e,
+                limit: limit
             }))
         }
     }
+
+    console.log(searchTitle)
     return (
         <>
             <div className='w-[100%] pt-[30px] pb-[30px] bg-[#f1f2f4]'>
@@ -143,7 +160,7 @@ const page = () => {
                             <i className="fa-solid fa-arrow-left"></i>
                         </div>
                         {totalPages?.map((e, i) => (
-                            <div onClick={(()=>handleCurrentPage(e))}  key={e} className='w-[30px] h-[30px] bg-[#0a65cd] rounded-[50%] flex justify-center items-center text-[12px] text-[#fff]'>
+                            <div onClick={(() => handleCurrentPage(e))} key={e} className='w-[30px] h-[30px] bg-[#0a65cd] rounded-[50%] flex justify-center items-center text-[12px] text-[#fff]'>
                                 <p>{e}</p>
                             </div>
                         ))}

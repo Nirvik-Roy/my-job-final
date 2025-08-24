@@ -86,7 +86,8 @@ const page = () => {
         jobId: id
       }))
     }
-  }
+  } 
+  
   
   useEffect(()=>{
      if(freshJobIds.length > 0){

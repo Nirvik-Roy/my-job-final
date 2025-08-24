@@ -3,11 +3,12 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 
-export const JobSearch = createAsyncThunk('JobSearch', async (searchParams) => {
+export const JobSearch = createAsyncThunk('JobSearch', async (searchParams, { getState }) => {
     const token = Cookies.get('job_token')
-    if (token) {
+    const state = getState()
+    if (token && state) {
         try {
-            const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}job/allJobs?search=${searchParams}`, {
+            const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}job/allJobs?limit=${searchParams?.limit || 12}&search=${searchParams?.searchTitle}&page=${searchParams?.currentPage || 1}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -16,9 +17,9 @@ export const JobSearch = createAsyncThunk('JobSearch', async (searchParams) => {
         } catch (err) {
             return rejectWithValue(err.response?.data || "Something went wrong");
         }
-    }else{
+    } else {
         toast.error('Plz Login to search jobs')
-         return rejectWithValue( "Something went wrong");
+        return rejectWithValue("Something went wrong");
     }
 })
 
@@ -27,19 +28,20 @@ export const AdvanceJobSearch = createAsyncThunk('AdvanceJobSearch', async (sear
     const token = Cookies.get('job_token')
     if (token) {
         try {
-            const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}job/allJobs?jobTitle=${title}&jobType=${jobType}&minSalary=${minSalary}`, {
+            const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}job/allJobs?jobTitle=${title}&jobType=${jobType}&minSalary=${minSalary}&limit=${searchParams?.limit || 12}&page=${searchParams?.currentPage || 1}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             })
             return res?.data
         } catch (err) {
+
             toast.error(err.response.data.message || err.message || 'Unexpected Error Occured')
             return rejectWithValue(err.response?.data || "Something went wrong");
         }
-    }else{
+    } else {
         toast.error('Plz Login to search jobs')
-         return rejectWithValue( "Something went wrong");
+        return rejectWithValue("Something went wrong");
     }
 })
 
@@ -49,6 +51,14 @@ const JobSearchSlice = createSlice({
         searchedJob: [],
         isLoading: false,
         isError: false,
+        searchTitle: '',
+        searchJobType:'',
+        searchMinSalary:''
+    },
+    reducers: {
+        addSearchValue(state, action) {
+            state.searchTitle = action?.payload
+        }
     },
     extraReducers: (builder) => {
         builder.addCase(JobSearch.pending, (state) => {
@@ -77,9 +87,10 @@ const JobSearchSlice = createSlice({
         builder.addCase(AdvanceJobSearch.rejected, (state, action) => {
             state.isLoading = false
             state.isError = true,
-            state.searchedJob = []
+                state.searchedJob = []
         })
     }
 })
 
 export default JobSearchSlice.reducer
+export const { addSearchValue } = JobSearchSlice.actions

@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { verifyToken, logout } from '../Store/Slices/AuthSlice'
 import { useRouter } from 'next/navigation'
 import { allJob } from '../Store/Slices/AllJobSlice'
-import { JobSearch } from '../Store/Slices/JobSearch'
+import { addSearchValue, JobSearch } from '../Store/Slices/JobSearch'
 import Cookies from 'js-cookie'
 
 const Navbar = () => {
@@ -34,7 +34,7 @@ const Navbar = () => {
 
     useEffect(() => {
         dispatch(allJob())
-    }, [token,isLogin])
+    }, [token, isLogin])
 
     const handleLogout = () => {
         dispatch(logout())
@@ -45,7 +45,11 @@ const Navbar = () => {
         const token = Cookies.get('job_token')
         if (token) {
             if (searchValue !== '') {
-                dispatch(JobSearch(searchValue != '' && searchValue))
+                // dispatch(JobSearch(searchValue != '' && searchValue))
+                dispatch(JobSearch({
+                    searchTitle: searchValue != '' && searchValue
+                }))
+                dispatch(addSearchValue(searchValue != '' && searchValue))
             }
             router.push('/find-job')
         } else {

@@ -12,6 +12,7 @@ const FeaturedJob = ({ jobList }) => {
     const router = useRouter();
     const [allJobs, setallJobs] = useState([])
     const { jobs, isloading } = useSelector(state => state.AllJob)
+    const AllJobData = useSelector(state => state.AllJob)
     const [findJobs, setfindJobs] = useState([]);
     const { getloadingData, applyJobsData } = useSelector(state => state.get_applyJobs)
     const [appliedJobsId, setappliedJobsId] = useState([])
@@ -43,7 +44,7 @@ const FeaturedJob = ({ jobList }) => {
         } else {
             dispatch(allJob({
                 limit: null,
-                currentPage: null,       
+                currentPage: null,
             }))
         }
     }, [applyJobsData])
@@ -56,12 +57,23 @@ const FeaturedJob = ({ jobList }) => {
     useEffect(() => {
         if (searchedJob?.length > 0 && isLogin) {
             setfindJobs(searchedJob)
-        } else if (isError) {
-            setfindJobs([])
-        } else if (!isLogin) {
-            setfindJobs(jobs)
+            return;
         }
-    }, [searchedJob, isError, appliedJobsId, isLogin, jobs])
+        if (isError) {
+            setfindJobs([])
+            return;
+        }
+        if (!isLogin) {
+            setfindJobs(jobs)
+            return;
+        }
+
+        if (AllJobData.isError) {
+            setfindJobs([])
+            return;
+        }
+
+    }, [searchedJob, isError, appliedJobsId, isLogin, jobs,AllJobData])
 
     useEffect(() => {
         if (token) {
@@ -130,7 +142,7 @@ const FeaturedJob = ({ jobList }) => {
             </div>}
 
             {jobList && <div className='pt-[0px] pb-[50px] bg-[#fff]'>
-                <div className='uni_container'>
+                <div className=''>
                     <div className='flex flex-col gap-y-8 mt-[20px]'>
                         {isloading && <LoaderNew />}
                         {isLoading && <div style={{
@@ -147,8 +159,9 @@ const FeaturedJob = ({ jobList }) => {
                         }}>
                             <LoaderNew />
                         </div>}
-                        {/* {isError && <p>No Jobs Found...</p>} */}
-                        {isError && <p>No Jobs Found...</p>}
+                        {(isError || AllJobData.isError) && <p>No Jobs Found...</p>}
+                   
+                        {/* {isError == true && <p>No Jobs Found...</p>} */}
                         {findJobs?.map((e, i) => {
                             return (
                                 <div onClick={(() => {
