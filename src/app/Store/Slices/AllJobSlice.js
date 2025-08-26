@@ -36,6 +36,7 @@ const AllJobSlice = createSlice({
         builder.addCase(allJob.rejected, ((state, action) => {
             state.isloading = false;
             state.isError = true
+            state.jobs = []
         }))
 
         builder.addCase(JobSearch.fulfilled, (state, action) => {

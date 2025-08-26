@@ -17,12 +17,13 @@ import { allJob } from '../Store/Slices/AllJobSlice'
 const page = () => {
     const dispatch = useDispatch();
     const token = Cookies.get('job_token')
-    const { searchedJob, searchTitle, searchJobType, searchMinSalary, advanceSearch } = useSelector(state => state.jobSearch)
+    const { searchedJob, searchTitle, searchJobType, searchMinSalary } = useSelector(state => state.jobSearch)
     const { pagination, isloading, jobs, isError } = useSelector(state => state.AllJob);
     const [totalPages, settotalPages] = useState()
     const [currentPage, setcurrentPage] = useState(1)
     const [limit, setLimit] = useState(12)
-    const { noOfPages } = pagination
+    const { noOfPages } = pagination;
+    const [AdvanceSearch, setAdvanceSearch] = useState(false)
     const [inputValue, setInputValue] = useState({
         title: '',
         jobType: '',
@@ -45,9 +46,11 @@ const page = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
+
         if (token) {
             if (inputValue.jobType != '' || inputValue.title != '' || inputValue.minSalary != '') {
                 dispatch(AdvanceJobSearch({ advancesearchParams: inputValue }))
+                setAdvanceSearch(true)
                 dispatch(addAdvanceSearchValue({
                     searchTitle: inputValue.title,
                     searchJobType: inputValue.jobType,
@@ -59,6 +62,7 @@ const page = () => {
         } else {
             toast.error('plz login to search job')
         }
+
     }
     useEffect(() => {
         if (pagination && isloading == false && noOfPages > 0) {
@@ -67,51 +71,55 @@ const page = () => {
     }, [pagination, isloading, noOfPages])
 
     const HandleLimitChange = (e, val) => {
+
         const { value } = e.target
         if (value) {
             const limitVariable = value === '12 per page' ? 12 : value === '6 per page' ? 6 : value === '3 per page' ? 3 : 12
             setLimit(limitVariable)
-            if (searchedJob.length > 0) {
+            if (AdvanceSearch == false && searchedJob.length > 0) {
                 dispatch(JobSearch({
                     searchTitle: searchTitle,
                     limit: limitVariable,
                     currentPage: currentPage
                 }))
-
+                return;
             }
-            if (advanceSearch && searchedJob > 0) {
+            if (AdvanceSearch && searchedJob?.length > 0) {
                 const searchDataObj = {
                     title: searchTitle,
                     jobType: searchJobType,
                     minSalary: searchMinSalary
                 }
                 let value = {
-                    limit: limit,
-                    currentPage: e
+                    limit: limitVariable,
+                    currentPage: currentPage
                 }
                 dispatch(AdvanceJobSearch({ advancesearchParams: searchDataObj, value }))
             }
-            if (limitVariable && searchedJob.length <= 0) {
+
+            if (limitVariable && searchedJob?.length <= 0 && AdvanceSearch == false) {
                 dispatch(allJob({
                     limit: limitVariable,
                     currentPage: currentPage
                 }))
-
+                return;
             }
         }
     }
 
     const handleCurrentPage = (e) => {
-
-        if (searchedJob.length > 0 || searchTitle != '') {
-            setcurrentPage(e)
+        setcurrentPage(e)
+        if (e && limit && searchTitle != '' && !AdvanceSearch) {
             dispatch(JobSearch({
                 searchTitle: searchTitle,
                 limit: limit,
                 currentPage: e
             }))
+            return;
+        } 
 
-        } else if (searchTitle || searchJobType || searchMinSalary) {
+        
+        if (AdvanceSearch) {
             const searchDataObj = {
                 title: searchTitle,
                 jobType: searchJobType,
@@ -121,10 +129,11 @@ const page = () => {
                 limit: limit,
                 currentPage: e
             }
+
             dispatch(AdvanceJobSearch({ advancesearchParams: searchDataObj, value }))
-        }
-        else {
-            setcurrentPage(e)
+            return;
+        } 
+        if(!AdvanceSearch && searchedJob.length <=0){
             dispatch(allJob({
                 currentPage: e,
                 limit: limit

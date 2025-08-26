@@ -15,6 +15,7 @@ export const JobSearch = createAsyncThunk('JobSearch', async (searchParams) => {
             })
             return res?.data
         } catch (err) {
+            toast.error('No job data found...')
             return rejectWithValue(err.response?.data || "Something went wrong");
         }
     } else {
@@ -91,13 +92,13 @@ const JobSearchSlice = createSlice({
         builder.addCase(JobSearch.rejected, (state, action) => {
             state.isLoading = false
             state.isError = true,
-                state.searchedJob = []
+            state.searchedJob = []
             state.advanceSearch = false
         })
         builder.addCase(AdvanceJobSearch.rejected, (state, action) => {
             state.isLoading = false
             state.isError = true,
-                state.searchedJob = []
+            state.searchedJob = []
             state.advanceSearch = false
         })
     }

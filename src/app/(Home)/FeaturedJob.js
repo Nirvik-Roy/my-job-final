@@ -2,13 +2,12 @@
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 import logo from '../../Assets/Employers Logo.png'
-import { useParams, usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useDispatch, useSelector } from 'react-redux'
 import { GetApplyJobs } from '../Store/Slices/GetApplyJobSlice'
 import LoaderNew from '../LoaderNew'
 import Cookies from 'js-cookie'
 import { allJob } from '../Store/Slices/AllJobSlice'
-import { verifyToken } from '../Store/Slices/AuthSlice'
 const FeaturedJob = ({ jobList }) => {
     const router = useRouter();
     const [allJobs, setallJobs] = useState([])
@@ -17,13 +16,13 @@ const FeaturedJob = ({ jobList }) => {
     const [findJobs, setfindJobs] = useState([]);
     const { getloadingData, applyJobsData } = useSelector(state => state.get_applyJobs)
     const [appliedJobsId, setappliedJobsId] = useState([])
-    const { searchedJob, isError, isLoading } = useSelector(state => state.jobSearch)
+    const { searchedJob, isError, isLoading, advanceSearch } = useSelector(state => state.jobSearch)
     const { isLogin } = useSelector(state => state.auth)
     const token = Cookies.get('job_token')
     const dispatch = useDispatch()
 
     useEffect(() => {
-        if (applyJobsData?.length) {
+        if (applyJobsData?.length && isLogin) {
             const ids = applyJobsData.map(el => el._id);
             setappliedJobsId(ids);
         } else {
@@ -55,25 +54,34 @@ const FeaturedJob = ({ jobList }) => {
             setfindJobs(jobs);
             return;
         }
-        if (searchedJob?.length > 0) {
+        if (searchedJob?.length > 0 && isLogin) {
             setfindJobs(searchedJob);
             return;
         }
-
-        if (isError || AllJobData.isError) {
-            setfindJobs([]);
+        if (AllJobData.isError) {
+            setfindJobs(jobs);
             return;
         }
-
+        if (isError) {
+            setfindJobs(searchedJob)
+            return;
+        }
         // Fallback: if none of the above, maybe revert to all jobs
-        setfindJobs(jobs);
-    }, [isLogin, searchedJob, isError, AllJobData.isError, jobs]);
+
+    }, [isLogin, searchedJob, isError, AllJobData.isError, jobs, advanceSearch]);
 
     useEffect(() => {
-        if (token ) {
+        if (token) {
             dispatch(GetApplyJobs())
         }
     }, [])
+
+    useEffect(() => {
+        if (jobs?.length > 0) {
+            setfindJobs(jobs)
+        }
+
+    }, [jobs])
 
     return (
         <>
@@ -153,7 +161,7 @@ const FeaturedJob = ({ jobList }) => {
                         }}>
                             <LoaderNew />
                         </div>}
-                        {(isError || AllJobData.isError) && <p>No Jobs Found...</p>}
+                        {(AllJobData.isError || isError) && <p>No Jobs Found...</p>}
 
                         {/* {isError == true && <p>No Jobs Found...</p>} */}
                         {findJobs?.map((e, i) => {
