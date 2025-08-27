@@ -1,11 +1,7 @@
 'use client'
 import Image from 'next/image'
 import search from '../../Assets/fi_search.png'
-import location from '../../Assets/fi_map-pin.png'
 import FeaturedJob from '../(Home)/FeaturedJob'
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import Slider from "react-slick";
 import { useDispatch, useSelector } from 'react-redux'
 import { addAdvanceSearchValue, AdvanceJobSearch, JobSearch } from '../Store/Slices/JobSearch'
 import { useEffect, useState } from 'react'
@@ -29,14 +25,6 @@ const page = () => {
         jobType: '',
         minSalary: '',
     })
-    var settings = {
-        dots: true,
-        infinite: false,
-        speed: 500,
-        slidesToShow: 6,
-        slidesToScroll: 1,
-        arrows: true
-    };
     const handleChange = (e) => {
         setInputValue({
             ...inputValue,
@@ -71,7 +59,6 @@ const page = () => {
     }, [pagination, isloading, noOfPages])
 
     const HandleLimitChange = (e, val) => {
-
         const { value } = e.target
         if (value) {
             const limitVariable = value === '12 per page' ? 12 : value === '6 per page' ? 6 : value === '3 per page' ? 3 : 12

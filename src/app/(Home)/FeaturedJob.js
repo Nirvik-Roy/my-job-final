@@ -62,13 +62,8 @@ const FeaturedJob = ({ jobList }) => {
             setfindJobs(jobs);
             return;
         }
-        if (isError) {
-            setfindJobs(searchedJob)
-            return;
-        }
-        // Fallback: if none of the above, maybe revert to all jobs
 
-    }, [isLogin, searchedJob, isError, AllJobData.isError, jobs, advanceSearch]);
+    }, [isLogin, searchedJob, AllJobData.isError, jobs]);
 
     useEffect(() => {
         if (token) {
@@ -77,11 +72,15 @@ const FeaturedJob = ({ jobList }) => {
     }, [])
 
     useEffect(() => {
-        if (jobs?.length > 0) {
+        if (jobs?.length > 0 && searchedJob.length == 0) {
             setfindJobs(jobs)
         }
+        if (isError) {
+            setfindJobs(searchedJob)
+            return;
+        }
 
-    }, [jobs])
+    }, [jobs, searchedJob,isError])
 
     return (
         <>
