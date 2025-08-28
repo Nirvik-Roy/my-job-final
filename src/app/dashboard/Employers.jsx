@@ -1,8 +1,57 @@
-import React from 'react'
+'use client'
+import { useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { GetPostedJobs } from "../Store/Slices/GetPostedJobsSlice"
+import LoaderNew from "../LoaderNew"
+import Cookies from "js-cookie"
+import { DeletePostedJobs } from "../Store/Slices/DeletePostedJobsSlice"
+import { toast } from "react-toastify"
 
 const Employers = () => {
+    const { PostedJobsData, fetchedError, isLoading } = useSelector(state => state.postedJobs);
+    const dispatch = useDispatch()
+    const [postJobData, setpostJobData] = useState([])
+    const userType = Cookies.get('user_type')
+    const { deleteLoading, deleteError, deleteSuccess } = useSelector(state => state.deletePostedJob)
+    useEffect(() => {
+        if (userType == 'Employer') {
+            dispatch(GetPostedJobs())
+        }
+    }, [deleteSuccess, deleteLoading, deleteError])
+    useEffect(() => {
+        if (PostedJobsData) {
+            setpostJobData(PostedJobsData)
+        } else {
+            setpostJobData([])
+        }
+        return () => {
+            setpostJobData([])
+        }
+    }, [PostedJobsData, isLoading, deleteLoading, deleteSuccess, deleteError])
+
+    const DeleteJobs = (_id) => {
+        if (userType === 'Employer' && _id) {
+            dispatch(DeletePostedJobs(_id))
+        } else {
+            toast.error('Unexpected Error Occured....')
+        }
+    }
     return (
         <>
+            {isLoading && <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                zIndex: '8',
+                background: 'rgba(0,0,0,0.5)',
+                position: 'fixed',
+                top: '0',
+                left: '0',
+                width: '100%',
+                height: '100vh'
+            }}>
+                <LoaderNew />
+            </div>}
             <div className="dashboard_content" >
                 <div className='flex flex-col'>
                     <h3 className='text-[15px] font-[500]'>Hello,Instagram</h3>
@@ -46,7 +95,7 @@ const Employers = () => {
                                 JOBS
                             </th>
                             <th className='w-[200px] min-w-[200px] text-left font-[400] text-[12px] text-[#505050] bg-[#f1f2f4] pt-[8px] pl-[15px] pb-[8px]'>
-                                TYPE
+                                JOB LEVEL
                             </th>
                             <th className='w-[180px] min-w-[180px] text-left font-[400] text-[12px] text-[#505050] bg-[#f1f2f4] pt-[8px] pl-[15px] pb-[8px]'>
                                 POST DATE
@@ -61,17 +110,20 @@ const Employers = () => {
                     </thead>
 
                     <tbody>
-                        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((e, i) => (
-                            <tr key={e}>
+                    {fetchedError && <p>No posted jobs found...</p>}
+                        {postJobData?.map((e, i) => (
+                            <tr key={e._id}>
                                 <td className='p-[15px] pb-[10px] border-b-1 border-[#ccc]'>
-                                    <h5 className='font-[500] text-[14px] '>UI/UX Designer</h5>
-                                    <p className='text-[#8e8e8e] text-[400] text-[12px]'>Full Time . $150k-$350k</p>
+                                    <h5 className='font-[500] text-[14px] '>{e.jobTitle}</h5>
+                                    <p className='text-[#8e8e8e] text-[400] text-[12px]'>{e.jobType} . ${e.minSalary / 1000}k-${e.maxSalary / 1000}k</p>
                                 </td>
 
-                                <td className='font-[400] text-[14px] p-[15px] pb-[10px] border-b-1 border-[#ccc]' >Full Time</td>
-                                <td className='font-[400] text-[14px] p-[15px] pb-[10px] border-b-1 border-[#ccc]' >7th October 1969</td>
+                                <td className='font-[400] text-[14px] p-[15px] pb-[10px] border-b-1 border-[#ccc]' >{e.jobLevel}</td>
+                                <td className='font-[400] text-[14px] p-[15px] pb-[10px] border-b-1 border-[#ccc]' >
+                                    {new Date(e.createdAt).toLocaleDateString()}
+                                </td>
                                 <td className='font-[400] text-[14px] p-[15px] pb-[10px] border-b-1 border-[#ccc]' ><i className="fa-solid fa-pen-to-square cursor-pointer text-[lightgreen]"></i></td>
-                                <td className='font-[400] text-[14px] p-[15px] pb-[10px] border-b-1 border-[#ccc]' ><i className="fa-solid fa-trash cursor-pointer text-[red]"></i></td>
+                                <td className='font-[400] text-[14px] p-[15px] pb-[10px] border-b-1 border-[#ccc]' ><i onClick={(() => DeleteJobs(e._id))} className="fa-solid fa-trash cursor-pointer text-[red]"></i></td>
                             </tr>
                         ))}
 
