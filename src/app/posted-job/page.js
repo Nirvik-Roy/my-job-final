@@ -8,11 +8,13 @@ import { DeletePostedJobs } from "../Store/Slices/DeletePostedJobsSlice"
 import { toast } from "react-toastify"
 import DashboardSidebar from "../dashboard/DashboardSidebar"
 import '../dashboard/Dashboard.css'
+import { useRouter } from 'next/navigation'
 const page = () => {
     const { PostedJobsData, fetchedError, isLoading } = useSelector(state => state.postedJobs);
     const dispatch = useDispatch()
     const [postJobData, setpostJobData] = useState([])
     const userType = Cookies.get('user_type')
+    const router = useRouter()
     const { deleteLoading, deleteError, deleteSuccess } = useSelector(state => state.deletePostedJob)
     useEffect(() => {
         if (userType == 'Employer') {
@@ -79,7 +81,7 @@ const page = () => {
                                     <td className='font-[400] text-[14px] p-[15px] pb-[10px] border-b-1 border-[#ccc]' >
                                         {new Date(e.createdAt).toLocaleDateString()}
                                     </td>
-                                    <td className='font-[400] text-[14px] p-[15px] pb-[10px] border-b-1 border-[#ccc]' ><i className="fa-solid fa-pen-to-square cursor-pointer text-[lightgreen]"></i></td>
+                                    <td className='font-[400] text-[14px] p-[15px] pb-[10px] border-b-1 border-[#ccc]' ><i onClick={(()=>{router.push(`/edit-job/${e._id}`)})} className="fa-solid fa-pen-to-square cursor-pointer text-[lightgreen]"></i></td>
                                     <td className='font-[400] text-[14px] p-[15px] pb-[10px] border-b-1 border-[#ccc]' ><i onClick={(() => DeleteJobs(e._id))} className="fa-solid fa-trash cursor-pointer text-[red]"></i></td>
                                 </tr>
                             ))}
