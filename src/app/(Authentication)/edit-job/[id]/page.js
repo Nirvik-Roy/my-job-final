@@ -1,7 +1,19 @@
 'use client'
-import { useState } from "react";
+import LoaderNew from "@/app/LoaderNew";
+import { JobByID } from "@/app/Store/Slices/JobByIdSlice";
+import axios from "axios";
+import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 const page = () => {
     const [file, setFile] = useState()
+    const dispatch = useDispatch();
+    const [loader,setLoader]=useState(false)
+    const router = useRouter()
+    const { id } = useParams()
+    const { jobIdData, jobLoading, jobError } = useSelector(state => state.jobById)
     const [editJob, seteditJob] = useState({
         jobLogo: '',
         jobTitle: '',
@@ -21,18 +33,92 @@ const page = () => {
         jobResponsibility: '',
     })
     const handleChange = (e) => {
-        seteditJob({ ...post, [e.target.name]: e.target.value })
+        seteditJob({ ...editJob, [e.target.name]: e.target.value })
     }
 
-    const handleImage = (e) => {
+    const handleImage = async (e) => {
         setFile(e.target.files[0])
+        if (e.target.files[0]) {
+            setLoader(true)
+            try {
+                const formData = new FormData()
+                formData.append('image', e.target.files[0])
+                const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}upload-image`, formData);
+                if (res.data.payload.imageUrl != '') {
+                    seteditJob({...editJob,jobLogo:res.data.payload.imageUrl})
+                }
+
+            } catch (err) {
+                toast.error(err.response?.data?.message || err.message || 'Error Occured')
+            }finally{
+                setLoader(false)
+            }
+        } else {
+            toast.error('Image upload failed')
+        }
     }
 
     const handleSubmit = async (e) => {
+        e.preventDefault()
+        
 
     }
+    const getDefaultDate = () => {
+        if (editJob?.expiredOn) {
+            return new Date(editJob?.expiredOn).toISOString().slice(0, 10);
+        } else {
+            return ''
+        }
+    };
+    useEffect(() => {
+        if (id) {
+            dispatch(JobByID(id))
+        }
+
+    }, [id])
+
+    useEffect(() => {
+        if (jobError) {
+            toast.error('Unexpected Error Occured')
+        }
+
+        if (jobIdData) {
+            seteditJob({
+                jobLogo: jobIdData?.jobLogo || '',
+                jobTitle: jobIdData?.jobTitle || '',
+                jobRole: jobIdData?.jobRole || '',
+                jobType: jobIdData?.jobType || '',
+                jobTags: jobIdData?.jobTags || '',
+                minSalary: jobIdData?.minSalary || '',
+                maxSalary: jobIdData?.maxSalary || '',
+                salType: jobIdData?.salType || '',
+                education: jobIdData?.education || '',
+                experience: jobIdData?.experience || '',
+                vacancies: jobIdData?.vacancies || '',
+                expiredOn: jobIdData?.expiredOn || '',
+                jobLevel: jobIdData?.jobLevel || '',
+                applyJobOn: jobIdData?.applyJobOn || '',
+                description: jobIdData?.description || '',
+                jobResponsibility: jobIdData?.jobResponsibility || '',
+            })
+        }
+    }, [jobError, jobIdData])
     return (
         <>
+            {(jobLoading || loader )&& <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                position: 'fixed',
+                top: '0',
+                width: '100%',
+                height: '100vh',
+                background: 'rgba(0,0,0,0.5)',
+                zIndex: '9'
+            }}>
+                <LoaderNew />
+            </div>}
+            
             <div className="min-h-screen p-6 bg-gradient-to-br from-slate-50 via-white to-indigo-50">
                 <div className="mx-auto max-w-5xl">
                     <div className="rounded-2xl border border-slate-200 bg-white/80 shadow-xl backdrop-blur">
@@ -56,7 +142,7 @@ const page = () => {
                                         htmlFor="companyLogo"
                                         className="flex h-40 w-full cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-white hover:bg-slate-50 transition"
                                     >
-                                        <div className="text-center">
+                                        {!editJob?.jobLogo && <div className="text-center">
                                             <svg className="mx-auto h-10 w-10 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3l4.5 4.5M12 3v13.5" />
                                             </svg>
@@ -64,7 +150,13 @@ const page = () => {
                                                 Upload logo
                                             </span>
                                             <span className="text-xs text-slate-500">PNG, JPG, SVG up to 2MB</span>
-                                        </div>
+                                        </div>}
+
+                                        {editJob?.jobLogo && <img style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            objectFit: 'contain'
+                                        }} src={editJob?.jobLogo} />}
                                     </label>
                                     <input onChange={handleImage} id="companyLogo" name="jobLogo" type="file" accept="image/*" className="sr-only" />
                                 </div>
@@ -79,6 +171,7 @@ const page = () => {
                                         id="jobTitle"
                                         name="jobTitle"
                                         type="text"
+                                        value={editJob.jobTitle}
                                         required
                                         placeholder="e.g., Senior Frontend Engineer"
                                         className="block w-full rounded-xl bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none"
@@ -93,6 +186,7 @@ const page = () => {
                                     <input onChange={handleChange}
                                         id="jobRole"
                                         name="jobRole"
+                                        value={editJob.jobRole}
                                         type="text"
                                         placeholder="e.g., Frontend, Backend, DevOps"
                                         className="block w-full rounded-xl bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none"
@@ -109,11 +203,11 @@ const page = () => {
                                             onChange={handleChange}
                                             id="jobType"
                                             name="jobType"
+                                            value={editJob.jobType}
                                             required
-                                            defaultValue=""
                                             className="block w-full appearance-none rounded-xl bg-white px-4 py-3 pr-10 text-sm text-slate-900 ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none"
                                         >
-                                            <option value="" disabled>Select job type</option>
+                                            <option disabled>Select job type</option>
                                             <option>Full-time</option>
                                             <option>Part-time</option>
                                             <option>Contract</option>
@@ -137,6 +231,7 @@ const page = () => {
                                     <input onChange={handleChange}
                                         id="jobTags"
                                         name="jobTags"
+                                        value={editJob.jobTags}
                                         type="text"
                                         placeholder="e.g., React, TypeScript, Tailwind (comma-separated)"
                                         className="block w-full rounded-xl bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none"
@@ -155,6 +250,7 @@ const page = () => {
                                                 name="minSalary"
                                                 type="number"
                                                 min="0"
+                                                value={editJob.minSalary}
                                                 placeholder="Min salary"
                                                 className="block w-full rounded-xl bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none"
                                             />
@@ -165,6 +261,7 @@ const page = () => {
                                                 name="maxSalary"
                                                 type="number"
                                                 min="0"
+                                                value={editJob.maxSalary}
                                                 placeholder="Max salary"
                                                 className="block w-full rounded-xl bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none"
                                             />
@@ -172,13 +269,13 @@ const page = () => {
                                         <div>
                                             <div className="relative">
                                                 <select
+                                                    value={editJob.salType}
                                                     onChange={handleChange}
                                                     id="salType"
                                                     name="salType"
-                                                    defaultValue=""
                                                     className="block w-full appearance-none rounded-xl bg-white px-4 py-3 pr-10 text-sm text-slate-900 ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none"
                                                 >
-                                                    <option value="" disabled>Salary type</option>
+                                                    <option disabled>Salary type</option>
                                                     <option>Yearly</option>
                                                     <option>Monthly</option>
                                                     <option>Weekly</option>
@@ -202,6 +299,7 @@ const page = () => {
                                         Education
                                     </label>
                                     <input onChange={handleChange}
+                                        value={editJob.education}
                                         id="education"
                                         name="education"
                                         type="text"
@@ -216,6 +314,7 @@ const page = () => {
                                         Experience
                                     </label>
                                     <input onChange={handleChange}
+                                        value={editJob.experience}
                                         id="experience"
                                         name="experience"
                                         type="text"
@@ -230,6 +329,7 @@ const page = () => {
                                         Vacancies
                                     </label>
                                     <input onChange={handleChange}
+                                        value={editJob.vacancies}
                                         id="vacancies"
                                         name="vacancies"
                                         type="number"
@@ -245,6 +345,7 @@ const page = () => {
                                         Expired On
                                     </label>
                                     <input onChange={handleChange}
+                                        value={getDefaultDate()}
                                         id="expiredOn"
                                         name="expiredOn"
                                         type="date"
@@ -259,6 +360,7 @@ const page = () => {
                                         Job Level
                                     </label>
                                     <input onChange={handleChange}
+                                        value={editJob.jobLevel}
                                         id="jobLevel"
                                         name="jobLevel"
                                         type="text"
@@ -275,13 +377,14 @@ const page = () => {
                                     <div className="relative">
                                         <select
                                             onChange={handleChange}
+                                            value={editJob.applyJobOn}
                                             id="applyJobOn"
                                             name="applyJobOn"
                                             required
-                                            defaultValue=""
+
                                             className="block w-full appearance-none rounded-xl bg-white px-4 py-3 pr-10 text-sm text-slate-900 ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none"
                                         >
-                                            <option value="" disabled>Select method</option>
+                                            <option  disabled>Select method</option>
                                             <option>On Jobpilot</option>
                                             <option>External Platform</option>
                                             <option>On Your Email</option>
@@ -302,6 +405,7 @@ const page = () => {
                                         Job Description
                                     </label>
                                     <textarea
+                                        value={editJob.description}
                                         onChange={handleChange}
                                         id="description"
                                         name="description"
@@ -318,6 +422,7 @@ const page = () => {
                                         Key Responsibilities
                                     </label>
                                     <textarea
+                                        value={editJob.jobResponsibility}
                                         onChange={handleChange}
                                         id="jobResponsibility"
                                         name="jobResponsibility"
