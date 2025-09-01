@@ -2,6 +2,7 @@
 import LoaderNew from "@/app/LoaderNew";
 import { JobByID } from "@/app/Store/Slices/JobByIdSlice";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -10,7 +11,7 @@ import { toast } from "react-toastify";
 const page = () => {
     const [file, setFile] = useState()
     const dispatch = useDispatch();
-    const [loader,setLoader]=useState(false)
+    const [loader, setLoader] = useState(false)
     const router = useRouter()
     const { id } = useParams()
     const { jobIdData, jobLoading, jobError } = useSelector(state => state.jobById)
@@ -38,30 +39,55 @@ const page = () => {
 
     const handleImage = async (e) => {
         setFile(e.target.files[0])
-        if (e.target.files[0]) {
-            setLoader(true)
-            try {
-                const formData = new FormData()
-                formData.append('image', e.target.files[0])
-                const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}upload-image`, formData);
-                if (res.data.payload.imageUrl != '') {
-                    seteditJob({...editJob,jobLogo:res.data.payload.imageUrl})
-                }
 
+    }
+
+    const handleEditJob = async (EditJobData) => {
+        const token = Cookies.get('job_token')
+        setLoader(false)
+        if (id && token) {
+            console.log(editJob)
+            try {
+                const res = await axios.put(`${process.env.NEXT_PUBLIC_BASE_URL}job/edit-job/${id}`, EditJobData, {
+                    headers: {
+                        'Authorization': `${token}`
+                    }
+                })
+                if (res.data?.success) {
+                    toast.success('Job Edited Success')
+                    router.push('/posted-job')
+                }
             } catch (err) {
-                toast.error(err.response?.data?.message || err.message || 'Error Occured')
-            }finally{
+                toast.error(err.response?.data?.message || err.message || 'Unexpected Error Occured')
+            } finally {
                 setLoader(false)
             }
         } else {
-            toast.error('Image upload failed')
+            toast.error('Edit Job Failed....')
         }
+
     }
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        
-
+        const EditJobData = { ...editJob }
+        if (file) {
+            setLoader(true)
+            try {
+                const formData = new FormData()
+                formData.append('image', file)
+                const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}upload-image`, formData);
+                if (res.data?.payload?.imageUrl != '') {
+                    // seteditJob({ ...editJob, jobLogo: res.data.payload.imageUrl })
+                    EditJobData.jobLogo = res.data.payload.imageUrl
+                    handleEditJob(EditJobData)
+                }
+            } catch (err) {
+                toast.error(err.response?.data?.message || err.message || 'Error Occured')
+            }
+        } else {
+            handleEditJob()
+        }
     }
     const getDefaultDate = () => {
         if (editJob?.expiredOn) {
@@ -105,7 +131,7 @@ const page = () => {
     }, [jobError, jobIdData])
     return (
         <>
-            {(jobLoading || loader )&& <div style={{
+            {(jobLoading || loader) && <div style={{
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -118,7 +144,7 @@ const page = () => {
             }}>
                 <LoaderNew />
             </div>}
-            
+
             <div className="min-h-screen p-6 bg-gradient-to-br from-slate-50 via-white to-indigo-50">
                 <div className="mx-auto max-w-5xl">
                     <div className="rounded-2xl border border-slate-200 bg-white/80 shadow-xl backdrop-blur">
@@ -384,7 +410,7 @@ const page = () => {
 
                                             className="block w-full appearance-none rounded-xl bg-white px-4 py-3 pr-10 text-sm text-slate-900 ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none"
                                         >
-                                            <option  disabled>Select method</option>
+                                            <option disabled>Select method</option>
                                             <option>On Jobpilot</option>
                                             <option>External Platform</option>
                                             <option>On Your Email</option>

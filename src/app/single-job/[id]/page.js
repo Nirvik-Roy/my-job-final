@@ -18,7 +18,7 @@ const page = () => {
   const { applyLoading, appliedJobIds } = useSelector(state => state.apply_job)
   const { saveJobIds, isLoading, isError } = useSelector(state => state.savedJob)
   const { savedJobdata } = useSelector(state => state.getSavedJob)
-  const {freshJobIds,removeLoading} = useSelector(state => state.removesaveJob)
+  const { freshJobIds, removeLoading } = useSelector(state => state.removesaveJob)
   const [appliedJobs, setAppliedJobs] = useState([])
   const [saveJobId, setSaveJobId] = useState([])
   const [singleJob, setSingleJob] = useState([])
@@ -45,7 +45,7 @@ const page = () => {
     if (token && user_type == 'JobSeeker') {
       dispatch(getSaveJobData())
     }
-  }, [token,user_type])
+  }, [token, user_type])
 
   useEffect(() => {
     if (savedJobdata?.length > 0) {
@@ -86,14 +86,14 @@ const page = () => {
         jobId: id
       }))
     }
-  } 
-  
-  
-  useEffect(()=>{
-     if(freshJobIds.length > 0){
+  }
+
+
+  useEffect(() => {
+    if (freshJobIds.length > 0) {
       setSaveJobId(freshJobIds)
-     }
-  },[freshJobIds])
+    }
+  }, [freshJobIds])
   return (
     <>
       <div className='bg-[#fff] pt-[30px] pb-[50px]'>
@@ -101,7 +101,7 @@ const page = () => {
           {singleJob?.map((e, i) => (
             <div key={e._id} className='flex justify-between items-center'>
               <div className='flex justify-start items-center gap-4'>
-                <Image className='w-[80px]' src={logo} alt='logo' />
+                <Image className='w-[80px]' width={80} height={80} src={e.jobLogo} alt='logo' />
                 <div className='flex flex-col gap-1 '>
                   <h1 className='text-[25px] font-[500]'>{e.jobTitle}</h1>
                   <div className='flex justify-between items-center gap-2'>
