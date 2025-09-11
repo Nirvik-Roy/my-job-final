@@ -39,6 +39,12 @@ const page = () => {
             toast.error('Unexpected Error Occured....')
         }
     }
+
+    useEffect(()=>{
+        if(userType === 'JobSeeker'){
+            setpostJobData([])
+        }
+    },[])
     return (
         <>
             <div className="uni_container flex justify-between relative">
@@ -69,7 +75,8 @@ const page = () => {
                         </thead>
 
                         <tbody>
-                            {fetchedError && <p>No posted jobs found...</p>}
+                            {fetchedError && <tr><td colSpan={12}><p>No posted jobs found...</p></td></tr>}
+                            {postJobData.length === 0 && <tr><td colSpan={12}>No Jobs Found</td></tr>}
                             {postJobData?.map((e, i) => (
                                 <tr key={e._id}>
                                     <td className='p-[15px] pb-[10px] border-b-1 border-[#ccc]'>

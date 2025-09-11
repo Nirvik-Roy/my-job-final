@@ -40,8 +40,8 @@ const GetPostedJobsSlice = createSlice({
         })
         builder.addCase(GetPostedJobs.fulfilled, (state, action) => {
             state.isLoading = false,
-                state.fetchedError = false,
-                state.PostedJobsData = action.payload?.payload
+            state.fetchedError = false,
+            state.PostedJobsData = action.payload?.payload
         })
         builder.addCase(GetPostedJobs.rejected, (state, action) => {
             state.isLoading = false,
