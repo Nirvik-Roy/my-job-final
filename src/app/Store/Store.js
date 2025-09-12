@@ -10,6 +10,9 @@ import RemoveSaveJobSlice from './Slices/RemoveSaveJobSlice'
 import GetPostedJobsSlice from './Slices/GetPostedJobsSlice'
 import DeletePostedJobsSlice from './Slices/DeletePostedJobsSlice'
 import JobByIDSlice from './Slices/JobByIdSlice'
+import ImageUploadSlice from './Slices/ImageUploadSlice'
+import PdfUploadSlice from './Slices/PdfUploadSlice'
+import AddPersonalProfileSlice from './Slices/AddPersonalProfileSlice'
 const store = configureStore({
     reducer: {
         auth: AuthSlice,
@@ -22,7 +25,10 @@ const store = configureStore({
         removesaveJob:RemoveSaveJobSlice,
         postedJobs:GetPostedJobsSlice,
         deletePostedJob:DeletePostedJobsSlice,
-        jobById:JobByIDSlice
+        jobById:JobByIDSlice,
+        imageUpload:ImageUploadSlice,
+        pdfUpload:PdfUploadSlice,
+        addUserProfile:AddPersonalProfileSlice
     }
 })
 
