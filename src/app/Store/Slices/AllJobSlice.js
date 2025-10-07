@@ -4,7 +4,7 @@ import { AdvanceJobSearch, JobSearch } from "./JobSearch";
 
 const { createSlice, createAsyncThunk } = require("@reduxjs/toolkit");
 
-export const allJob = createAsyncThunk('allJob', async (pagi_params) => {
+export const allJob = createAsyncThunk('allJob', async (pagi_params,{rejectWithValue}) => {
     try {
         const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}job/allJobs?page=${pagi_params?.currentPage || 1}&limit=${(pagi_params?.limit) || 100}`);
         return res.data

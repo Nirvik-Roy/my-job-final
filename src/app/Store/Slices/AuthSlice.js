@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 
 const { createSlice, createAsyncThunk } = require("@reduxjs/toolkit");
 
-export const Auth = createAsyncThunk('Auth', async (loginParams) => {
+export const Auth = createAsyncThunk('Auth', async (loginParams,{rejectWithValue}) => {
     const { formData } = loginParams
     if (formData) {
         try {

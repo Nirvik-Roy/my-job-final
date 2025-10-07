@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 const { createSlice, createAsyncThunk } = require("@reduxjs/toolkit");
 
 
-export const JobByID = createAsyncThunk('JobByID', async (_idParams) => {
+export const JobByID = createAsyncThunk('JobByID', async (_idParams,{rejectWithValue}) => {
     const token = Cookies.get('job_token')
     if (token && _idParams) {
         try {

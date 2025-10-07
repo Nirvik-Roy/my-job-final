@@ -13,22 +13,24 @@ import JobByIDSlice from './Slices/JobByIdSlice'
 import ImageUploadSlice from './Slices/ImageUploadSlice'
 import PdfUploadSlice from './Slices/PdfUploadSlice'
 import AddPersonalProfileSlice from './Slices/AddPersonalProfileSlice'
+import fetchUserProfileSlice from "./Slices/FetchUserProfile";
 const store = configureStore({
     reducer: {
         auth: AuthSlice,
         AllJob: AllJobSlice,
         jobSearch: JobSearchSlice,
         apply_job: ApplyJobSlice,
-        get_applyJobs:GetApplyJobSlice,
-        savedJob:SaveJobSlice,
-        getSavedJob:GetSavedJobDataSlice,
-        removesaveJob:RemoveSaveJobSlice,
-        postedJobs:GetPostedJobsSlice,
-        deletePostedJob:DeletePostedJobsSlice,
-        jobById:JobByIDSlice,
-        imageUpload:ImageUploadSlice,
-        pdfUpload:PdfUploadSlice,
-        addUserProfile:AddPersonalProfileSlice
+        get_applyJobs: GetApplyJobSlice,
+        savedJob: SaveJobSlice,
+        getSavedJob: GetSavedJobDataSlice,
+        removesaveJob: RemoveSaveJobSlice,
+        postedJobs: GetPostedJobsSlice,
+        deletePostedJob: DeletePostedJobsSlice,
+        jobById: JobByIDSlice,
+        imageUpload: ImageUploadSlice,
+        pdfUpload: PdfUploadSlice,
+        addUserProfile: AddPersonalProfileSlice,
+        fetchUser: fetchUserProfileSlice
     }
 })
 

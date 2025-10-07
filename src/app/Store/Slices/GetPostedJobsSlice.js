@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 const { createSlice, createAsyncThunk } = require("@reduxjs/toolkit");
 
-export const GetPostedJobs = createAsyncThunk('GetPostedJobs', async () => {
+export const GetPostedJobs = createAsyncThunk('GetPostedJobs', async (_,{rejectWithValue}) => {
     const token = Cookies.get('job_token');
     const userType = Cookies.get('user_type');
     if (token && userType === 'Employer') {

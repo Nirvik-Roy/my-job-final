@@ -3,7 +3,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 
-export const RemoveSaveJob = createAsyncThunk('RemoveSaveJob', async (id) => {
+export const RemoveSaveJob = createAsyncThunk('RemoveSaveJob', async (id,{rejectWithValue}) => {
     const token = Cookies.get('job_token');
     const userType = Cookies.get('user_type')
     if (token && id && userType === 'JobSeeker') {

@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 const { createSlice, createAsyncThunk } = require("@reduxjs/toolkit");
 
 
-export const ImageUpload = createAsyncThunk('ImageUpload', async (Images) => {
+export const ImageUpload = createAsyncThunk('ImageUpload', async (Images,{rejectWithValue}) => {
     if (Images) {
         try {
             const formData = new FormData()
@@ -13,7 +13,7 @@ export const ImageUpload = createAsyncThunk('ImageUpload', async (Images) => {
             const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}upload-image`, formData)
             if (res.data?.payload.imageUrl != '') {
                 toast.success('Uploading Images....')
-                return res.data
+                return res.data.payload.imageUrl
             }
         } catch (err) {
             toast.error(err.response.data.message || err.message || 'Image Uploading Failed');
@@ -26,28 +26,28 @@ export const ImageUpload = createAsyncThunk('ImageUpload', async (Images) => {
 
 
 const ImageUploadSlice = createSlice({
-    name:'imageUpload',
-    initialState:{
-        isUploading:false,
-        isUploadingFailed:false,
-        imgUrl:""
+    name: 'imageUpload',
+    initialState: {
+        isUploading: false,
+        isUploadingFailed: false,
+        imgUrl: ""
     },
 
-    extraReducers:(builder)=>{
-        builder.addCase(ImageUpload.pending,(state)=>{
-            state.isUploading=true,
-            state.isUploadingFailed=false
-        
+    extraReducers: (builder) => {
+        builder.addCase(ImageUpload.pending, (state) => {
+            state.isUploading = true,
+                state.isUploadingFailed = false
+
         })
-        builder.addCase(ImageUpload.fulfilled,(state,action)=>{
+        builder.addCase(ImageUpload.fulfilled, (state, action) => {
             state.isUploading = false,
-            state.isUploadingFailed = false,
-            state.imgUrl = action.payload.payload?.imageUrl
+                state.isUploadingFailed = false,
+                state.imgUrl = action.payload.payload?.imageUrl
         })
-        builder.addCase(ImageUpload.rejected,(state,action)=>{
+        builder.addCase(ImageUpload.rejected, (state, action) => {
             state.isUploading = false,
-            state.isUploadingFailed = true,
-            state.imgUrl = ''
+                state.isUploadingFailed = true,
+                state.imgUrl = ''
         })
     }
 })

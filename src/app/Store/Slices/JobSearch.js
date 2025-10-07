@@ -24,7 +24,7 @@ export const JobSearch = createAsyncThunk('JobSearch', async (searchParams) => {
     }
 })
 
-export const AdvanceJobSearch = createAsyncThunk('AdvanceJobSearch', async (searchParams) => {
+export const AdvanceJobSearch = createAsyncThunk('AdvanceJobSearch', async (searchParams,{rejectWithValue}) => {
     const { advancesearchParams, value } = searchParams
     const token = Cookies.get('job_token')
     if (token) {
