@@ -8,9 +8,7 @@ import { FetchUserProfile } from '../Store/Slices/FetchUserProfile';
 
 const Personal = () => {
     const [imageUrl, setImageUrl] = useState("");
-    const [imageFile, setImageFile] = useState();
-    const [fileInfo, setFileInfo] = useState([]);
-    const [pdfFile, setPdfFile] = useState()
+    const [imageFile, setImageFile] = useState()
     const { isUploading, isUploadingFailed, imgUrl } = useSelector(state => state.imageUpload)
     const { isPdfUploading, isPdfUploadFailed, documents } = useSelector(state => state.pdfUpload)
     const { userProfileUpdating, userProfileUpdateFailed } = useSelector(state => state.addUserProfile)
@@ -33,7 +31,7 @@ const Personal = () => {
     const handleImage = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setImageFile(file)  //Store the Image File in the state for after use///
+            setImageFile(file)
             const reader = new FileReader() //This is done to display the images in frontend after uploading//
             reader.onload = (e) => {
                 setImageUrl(e.target.result)
@@ -43,28 +41,16 @@ const Personal = () => {
     }
 
     // Function for handling multiple file uploads
-    const handleFileUpload = (e) => {
+    const handleFileUpload = async (e) => {
         const files = [...e.target.files]
         if (files.length > 0) {
-            // dispatch(PdfUpload(files))
-            setPdfFile(files);
-            const fileDetails = files.map((file) => {
-                const fileSize =
-                    file.size < 1024 * 1024
-                        ? (file.size / 1024).toFixed(2) + ' KB'
-                        : (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-
-                return {
-                    name: file.name,
-                    size: fileSize,
-                };
-            });
-            setFileInfo([...fileInfo, ...fileDetails]);
+            const pdfUrls = await dispatch(PdfUpload([...files])).unwrap(); // ✅ get returned docs
+            const copyData = { ...personalData }
+            copyData.documents = [...personalData.documents, ...pdfUrls]
+            // setPersonalData({ ...personalData, documents: [...personalData.documents, ...pdfUrls] })
+            setPersonalData(copyData)
         }
     }
-
-
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -73,19 +59,9 @@ const Personal = () => {
 
         try {
             if (imageFile) {
-
                 const imgUrl = await dispatch(ImageUpload(imageFile)).unwrap(); // ✅ get returned value
                 data.profile = imgUrl;
-                setImageUrl(imgUrl);
             }
-
-            if (pdfFile) {
-
-                const pdfUrls = await dispatch(PdfUpload(pdfFile)).unwrap(); // ✅ get returned docs
-                data.documents = pdfUrls;
-            }
-
-            console.log(data);
             dispatch(AddPersonalProfile(data));
         } catch (err) {
             console.error("Error uploading:", err);
@@ -96,6 +72,20 @@ const Personal = () => {
         dispatch(FetchUserProfile())
     }, [])
 
+    useEffect(() => {
+        if (userProfileData?.length > 0) {
+            setPersonalData({
+                fullName: userProfileData[0]?.fullName || '',
+                experience: userProfileData[0]?.experience || '',
+                profile: userProfileData[0]?.profile || '',
+                website: userProfileData[0]?.website || '',
+                documents: userProfileData[0]?.documents || []
+            })
+        }
+
+    }, [userProfileData])
+
+    console.log(userProfileData)
     return (
         <>
             {(isPdfUploading || isUploading || userProfileUpdating || isLoading) && <div style={{
@@ -119,28 +109,28 @@ const Personal = () => {
                         <label>Profile Picture</label>
                         <div className='border-dashed  border-[2] border-[#ccc] w-[100%] h-[180px] rounded-[8px] relative flex justify-center items-center'>
                             <input accept="image/jpeg, image/png" onChange={handleImage} type='file' className='absolute top-0 left-0 w-[100%] h-[100%] opacity-[0]' />
-                            {imageUrl != '' ? <img style={{
+                            {(imageUrl != '' || personalData.profile != '') ? <img style={{
                                 width: '100%',
                                 height: '100%',
                                 objectFit: 'contain'
-                            }} src={imageUrl} /> : <i className="fa-solid fa-arrow-up-from-bracket text-[50px]"></i>}
+                            }} src={imageUrl || personalData.profile} /> : <i className="fa-solid fa-arrow-up-from-bracket text-[50px]"></i>}
                         </div>
                     </div>
                     <div className='flex flex-col gap-[8px] w-[48%]'>
                         <label>Full Name</label>
-                        <input onChange={HandleChange} name='fullName' placeholder='Enter full name...' className='w-[100%] h-[40px] bg-[transparent] rounded-[8px] border border-[#ccc] pr-[10px] pl-[10px] outline-none' />
+                        <input value={personalData.fullName} onChange={HandleChange} name='fullName' placeholder='Enter full name...' className='w-[100%] h-[40px] bg-[transparent] rounded-[8px] border border-[#ccc] pr-[10px] pl-[10px] outline-none' />
                     </div>
 
 
                     <div className='flex flex-col gap-[8px] w-[48%]'>
                         <label>Experience</label>
-                        <input onChange={HandleChange} name='experience' placeholder='Enter your total experience...' className='w-[100%] h-[40px] bg-[transparent] rounded-[8px] border border-[#ccc] pr-[10px] pl-[10px] outline-none' />
+                        <input value={personalData.experience} onChange={HandleChange} name='experience' placeholder='Enter your total experience...' className='w-[100%] h-[40px] bg-[transparent] rounded-[8px] border border-[#ccc] pr-[10px] pl-[10px] outline-none' />
                     </div>
 
 
                     <div className='flex flex-col gap-[8px] w-[48%]'>
                         <label>Personal Website</label>
-                        <input onChange={HandleChange} name='website' placeholder='Enter your portfolio link ' className='w-[100%] h-[40px] bg-[transparent] rounded-[8px] border border-[#ccc] pr-[10px] pl-[10px] outline-none' />
+                        <input value={personalData.website} onChange={HandleChange} name='website' placeholder='Enter your portfolio link ' className='w-[100%] h-[40px] bg-[transparent] rounded-[8px] border border-[#ccc] pr-[10px] pl-[10px] outline-none' />
                     </div>
                     <button onClick={handleSubmit} className='text-[#fff] text-[16px] font-[500] pt-[12px] pb-[12px] pl-[40px] pr-[40px] bg-[#0a65cd] cursor-pointer'>Save Changes</button>
                 </form>
@@ -149,14 +139,20 @@ const Personal = () => {
                     <h2 className='text-[16px] font-[400]'>Your Cv/Resume</h2>
 
                     <div className='flex flex-wrap gap-[20px] w-[100%] mt-[8px]'>
-                        {fileInfo.length > 0 && fileInfo.map((e, i) => (
+                        {personalData?.documents?.length > 0 && personalData.documents.map((e, i) => (
 
-                            <div key={i} className='p-[20px] w-[250px] bg-[#F1F2F4] flex items-center gap-[8px] rounded-[8px] '>
+                            <div key={i} className='p-[20px] w-[250px] bg-[#F1F2F4] flex  gap-[8px] rounded-[8px] '>
                                 <i className="fa-solid fa-file-pdf text-[#505050]"></i>
 
-                                <div>
-                                    <p className='text-[12px] font-[500] mb-[-8px]'>{e.name}</p>
-                                    <span className='text-[11px] font-[400] text-[#505050]'>{e.size}</span>
+                                <div style={{
+                                    overflow: 'hidden'
+                                }}>
+                                    <p className='text-[12px] font-[500] mb-[-8px]' style={{
+                                        overflow: 'hidden',
+                                        whiteSpace: 'nowrap',
+                                        textOverflow: 'ellipsis'
+                                    }}>Your PDF</p>
+                                    {/* <span className='text-[11px] font-[400] text-[#505050]'>{e.size}</span> */}
                                 </div>
 
                             </div>
